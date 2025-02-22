@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 import torch
 import argparse
 import torch.nn as nn
@@ -10,15 +11,16 @@ from utils import config_files
 
 
 class LayerNormalization(nn.Module):
-    def __init__(self, dimension: int = 256):
+    def __init__(self, dimension: int = 256, layer_norm_eps: float = 1e-5):
         super(LayerNormalization, self).__init__()
         self.dimension = dimension
+        self.layer_norm_eps = layer_norm_eps
 
         self.alpha = nn.Parameter(
-            data=torch.randn((1, 1, self.dimension)), requires_grad=True
+            data=torch.ones((1, 1, self.dimension)), requires_grad=True
         )
         self.beta = nn.Parameter(
-            data=torch.randn((1, 1, self.dimension)), requires_grad=True
+            data=torch.zeros((1, 1, self.dimension)), requires_grad=True
         )
 
     def forward(self, x: torch.Tensor):
@@ -26,7 +28,9 @@ class LayerNormalization(nn.Module):
             mean = torch.mean(x, dim=-1).unsqueeze(-1)
             variance = torch.var(x, dim=-1).unsqueeze(-1)
 
-            return self.alpha * mean + self.beta * variance
+            y = (x - mean) / torch.sqrt(variance + self.layer_norm_eps)
+
+            return self.alpha * y + self.beta
 
         else:
             raise ValueError("Input must be a torch.Tensor.".capitalize())
