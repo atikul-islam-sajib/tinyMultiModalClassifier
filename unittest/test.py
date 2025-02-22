@@ -10,6 +10,7 @@ from utils import config_files
 from patch_embedding import PatchEmbedding
 from scaled_dot_product import scaled_dot_product
 from multihead_attention_layer import MultiHeadAttentionLayer
+from feed_forward_network import FeedForwardNeuralNetwork
 
 
 class UnitTest(unittest.TestCase):
@@ -51,6 +52,9 @@ class UnitTest(unittest.TestCase):
         self.multihead_attention = MultiHeadAttentionLayer(
             nheads=self.nheads,
             dimension=self.dimension,
+        )
+        self.FFNN = FeedForwardNeuralNetwork(
+            in_features=self.dimension, out_features=4 * self.dimension
         )
 
     def test_pathEmebeddingLayer(self):
@@ -99,6 +103,14 @@ class UnitTest(unittest.TestCase):
     def test_multihead_attention(self):
         self.assertEqual(
             self.multihead_attention(
+                torch.randn((1, self.number_of_patch_size, self.dimension))
+            ).size(),
+            (1, self.number_of_patch_size, self.dimension),
+        )
+
+    def test_FFNN(self):
+        self.assertEqual(
+            self.FFNN(
                 torch.randn((1, self.number_of_patch_size, self.dimension))
             ).size(),
             (1, self.number_of_patch_size, self.dimension),
