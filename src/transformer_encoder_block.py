@@ -6,6 +6,8 @@ import torch.nn as nn
 
 sys.path.append("./src/")
 
+from scaled_dot_product import scaled_dot_product
+
 
 class TransformerEncoderBlock(nn.Module):
     def __init__(self, nheads: int = 8, dimension: int = 256):
@@ -47,7 +49,14 @@ class TransformerEncoderBlock(nn.Module):
             key = key.permute(0, 2, 1, 3)
             values = values.permute(0, 2, 1, 3)
 
-            return query, key, values
+            attention_output = scaled_dot_product(query=query, key=key, values=values)
+            attention_output = attention_output.view(
+                attention_output.size(0),
+                attention_output.size(2),
+                attention_output.size(1) * attention_output.size(-1),
+            )
+
+            return attention_output
         else:
             raise ValueError("Input must be a torch tensor.".capitalize())
 
@@ -57,5 +66,5 @@ if __name__ == "__main__":
         nheads=8,
         dimension=256,
     )
-    Q, K, V = transformerEncoder(torch.randn((1, 64, 256)))
-    print(Q.size(), K.size(), V.size())
+    attention = transformerEncoder(torch.randn((1, 64, 256)))
+    print(attention.size())
