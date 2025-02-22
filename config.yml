@@ -1,0 +1,9 @@
+artifacts:
+    checkpoints: "./artifacts/checkpoints/"
+    train_models: "./artifacts/checkpoints/train_models/"
+    best_model: "./artifacts/checkpoints/best_model/"
+    files: "./artifacts/files/"
+    metrics: "./artifacts/metrics/"
+    train_images: "./artifacts/outputs/train_images/"
+    val_images: "./artifacts/outputs/val_images/"
+    test_image: "./artifacts/outputs/test_image/"
