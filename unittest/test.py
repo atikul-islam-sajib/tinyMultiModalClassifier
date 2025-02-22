@@ -11,6 +11,7 @@ from patch_embedding import PatchEmbedding
 from scaled_dot_product import scaled_dot_product
 from multihead_attention_layer import MultiHeadAttentionLayer
 from feed_forward_network import FeedForwardNeuralNetwork
+from layer_normalization import LayerNormalization
 
 
 class UnitTest(unittest.TestCase):
@@ -56,6 +57,7 @@ class UnitTest(unittest.TestCase):
         self.FFNN = FeedForwardNeuralNetwork(
             in_features=self.dimension, out_features=4 * self.dimension
         )
+        self.layer_normalization = LayerNormalization(dimension=self.dimension)
 
     def test_pathEmebeddingLayer(self):
         self.assertEqual(
@@ -111,6 +113,14 @@ class UnitTest(unittest.TestCase):
     def test_FFNN(self):
         self.assertEqual(
             self.FFNN(
+                torch.randn((1, self.number_of_patch_size, self.dimension))
+            ).size(),
+            (1, self.number_of_patch_size, self.dimension),
+        )
+
+    def test_layer_normalization(self):
+        self.assertEqual(
+            self.layer_normalization(
                 torch.randn((1, self.number_of_patch_size, self.dimension))
             ).size(),
             (1, self.number_of_patch_size, self.dimension),
