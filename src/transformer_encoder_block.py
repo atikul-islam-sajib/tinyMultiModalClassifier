@@ -28,8 +28,26 @@ class TransformerEncoderBlock(nn.Module):
 
     def forward(self, x: torch.Tensor):
         if isinstance(x, torch.Tensor):
-            x = self.QKV(x)
-            return x
+            QKV = self.QKV(x)
+            query, key, values = torch.chunk(input=QKV, chunks=3, dim=-1)
+            query = query.view(
+                query.size(0), query.size(1), self.nheads, self.dimension // self.nheads
+            )
+            key = key.view(
+                key.size(0), key.size(1), self.nheads, self.dimension // self.nheads
+            )
+            values = values.view(
+                values.size(0),
+                values.size(1),
+                self.nheads,
+                self.dimension // self.nheads,
+            )
+
+            query = query.permute(0, 2, 1, 3)
+            key = key.permute(0, 2, 1, 3)
+            values = values.permute(0, 2, 1, 3)
+
+            return query, key, values
         else:
             raise ValueError("Input must be a torch tensor.".capitalize())
 
@@ -39,4 +57,5 @@ if __name__ == "__main__":
         nheads=8,
         dimension=256,
     )
-    print(transformerEncoder(torch.randn((1, 64, 256))).size())
+    Q, K, V = transformerEncoder(torch.randn((1, 64, 256)))
+    print(Q.size(), K.size(), V.size())
