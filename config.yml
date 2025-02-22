@@ -13,3 +13,6 @@ patchEmbeddings:
     patch_size: 16
     image_size: 128
     dimension: 256
+
+transfomerEncoderBlock:
+    nheads: 8

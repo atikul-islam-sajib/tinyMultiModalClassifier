@@ -2,9 +2,11 @@ import os
 import sys
 import math
 import torch
-import torch.nn as nn
+import argparse
 
 sys.path.append("./src/")
+
+from utils import config_files
 
 
 def scaled_dot_product(query: torch.Tensor, key: torch.Tensor, values: torch.Tensor):
@@ -23,9 +25,20 @@ def scaled_dot_product(query: torch.Tensor, key: torch.Tensor, values: torch.Ten
 
 
 if __name__ == "__main__":
-    attention = scaled_dot_product(
-        torch.randn((1, 8, 64, 32)),
-        torch.randn((1, 8, 64, 32)),
-        torch.randn((1, 8, 64, 32)),
+    parser = argparse.ArgumentParser(
+        description="Scaled dot product for the attention".title()
     )
-    print(attention.size())  # (1, 8, 64, 32)
+    image_channels = config_files()["patchEmbeddings"]["channels"]
+    image_size = config_files()["patchEmbeddings"]["image_size"]
+    patch_size = config_files()["patchEmbeddings"]["patch_size"]
+    dimension = config_files()["patchEmbeddings"]["dimension"]
+    nheads = config_files()["transfomerEncoderBlock"]["nheads"]
+
+    number_of_patch_size = (image_size // patch_size) ** 2
+
+    attention = scaled_dot_product(
+        torch.randn((1, nheads, number_of_patch_size, dimension // nheads)),
+        torch.randn((1, nheads, number_of_patch_size, dimension // nheads)),
+        torch.randn((1, nheads, number_of_patch_size, dimension // nheads)),
+    )
+    assert attention.size() == (1, nheads, number_of_patch_size, dimension // nheads)
