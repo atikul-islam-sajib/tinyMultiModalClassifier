@@ -1,10 +1,13 @@
 import os
 import sys
 import torch
+import argparse
 import torch.nn as nn
 from torchview import draw_graph
 
 sys.path.append("/src/")
+
+from utils import config_files
 
 
 class PatchEmbedding(nn.Module):
@@ -54,10 +57,94 @@ class PatchEmbedding(nn.Module):
         else:
             raise ValueError("Input must be a torch tensor.".capitalize())
 
+    @staticmethod
+    def total_params(model):
+        if isinstance(model, PatchEmbedding):
+            return sum(params.numel() for params in model.parameters())
+
 
 if __name__ == "__main__":
-    image = torch.randn((1, 3, 128, 128))
-    patchEmbedding = PatchEmbedding(
-        channels=3, patch_size=16, image_size=128, dimension=256
+    image_channels = config_files()["patchEmbeddings"]["channels"]
+    image_size = config_files()["patchEmbeddings"]["image_size"]
+    patch_size = config_files()["patchEmbeddings"]["patch_size"]
+    dimension = config_files()["patchEmbeddings"]["dimension"]
+
+    parser = argparse.ArgumentParser(
+        description="Patch Embedding for the ViT - MultiModal Model".title()
     )
-    print(patchEmbedding(image).size())
+    parser.add_argument(
+        "--channels",
+        type=int,
+        default=image_channels,
+        help="Number of channels for the Image".capitalize(),
+    )
+    parser.add_argument(
+        "--patch_size",
+        type=int,
+        default=patch_size,
+        help="Size of the patches".capitalize(),
+    )
+    parser.add_argument(
+        "--image_size",
+        type=int,
+        default=image_size,
+        help="Size of the Image".capitalize(),
+    )
+    parser.add_argument(
+        "--dimension",
+        type=int,
+        default=dimension,
+        help="Dimensionality of the embeddings".capitalize(),
+    )
+    parser.add_argument(
+        "--display",
+        action="store_true",
+        help="To display the Patch Embedding for the ViT - MultiModal Model".capitalize(),
+    )
+
+    args = parser.parse_args()
+
+    image = torch.randn(
+        (image_channels // image_channels, image_channels, image_size, image_size)
+    )
+    patchEmbedding = PatchEmbedding(
+        channels=image_channels,
+        patch_size=patch_size,
+        image_size=image_size,
+        dimension=dimension,
+    )
+    assert patchEmbedding(image).size() == (
+        image_channels // image_channels,
+        (image_size // patch_size) ** 2,
+        dimension,
+    ), "PatchEmbedding dimension mismatch".capitalize()
+
+    if args.display:
+        print(
+            "Total parameters in PatchEmbedding: {}".format(
+                PatchEmbedding.total_params(patchEmbedding)
+            )
+        )
+
+        draw_graph(
+            model=patchEmbedding,
+            input_data=torch.randn(
+                (
+                    image_channels // image_channels,
+                    image_channels,
+                    image_size,
+                    image_size,
+                )
+            ),
+        ).visual_graph.render(
+            filename=os.path.join(
+                config_files()["artifacts"]["files"], "PathEmbedding"
+            ),
+            format="pdf",
+        )
+
+        print(
+            "Patch Embedding diagram has been saved in {}".format(
+                os.path.join(config_files()["artifacts"]["files"], "PathEmbedding.pdf")
+            )
+        )
