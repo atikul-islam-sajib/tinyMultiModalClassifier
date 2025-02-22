@@ -2,10 +2,13 @@ import os
 import sys
 import warnings
 import torch
+import argparse
 import torch.nn as nn
+from torchview import draw_graph
 
 sys.path.append("./src/")
 
+from utils import config_files
 from scaled_dot_product import scaled_dot_product
 
 
@@ -60,11 +63,72 @@ class TransformerEncoderBlock(nn.Module):
         else:
             raise ValueError("Input must be a torch tensor.".capitalize())
 
+    @staticmethod
+    def total_params(model):
+        if isinstance(model, TransformerEncoderBlock):
+            return sum(params.numel() for params in model.parameters())
+
 
 if __name__ == "__main__":
-    transformerEncoder = TransformerEncoderBlock(
-        nheads=8,
-        dimension=256,
+    image_channels = config_files()["patchEmbeddings"]["channels"]
+    image_size = config_files()["patchEmbeddings"]["image_size"]
+    patch_size = config_files()["patchEmbeddings"]["patch_size"]
+    dimension = config_files()["patchEmbeddings"]["dimension"]
+    nheads = config_files()["transfomerEncoderBlock"]["nheads"]
+
+    parser = argparse.ArgumentParser(
+        description="Transformer Encoder Block for the multi modal task".title()
     )
-    attention = transformerEncoder(torch.randn((1, 64, 256)))
-    print(attention.size())
+    parser.add_argument(
+        "--nheads",
+        type=int,
+        default=nheads,
+        help="Number of heads for the multi-head attention mechanism".capitalize(),
+    )
+    parser.add_argument(
+        "--dimension",
+        type=int,
+        default=dimension,
+        choices=[256, 512, 1024],
+        help="Please choose from 256, 512, or 1024".capitalize(),
+    )
+    parser.add_argument(
+        "--display",
+        action="store_true",
+        default=False,
+        help="Display the model of Transformer Block".capitalize(),
+    )
+
+    args = parser.parse_args()
+
+    number_of_path_size = (image_size // patch_size) ** 2
+
+    transformerEncoder = TransformerEncoderBlock(
+        nheads=nheads,
+        dimension=dimension,
+    )
+    attention = transformerEncoder(torch.randn((1, number_of_path_size, dimension)))
+    assert (attention.size()) == (
+        1,
+        number_of_path_size,
+        dimension,
+    ), "Transformer encoder failed".capitalize()
+
+    if args.display:
+        draw_graph(
+            model=transformerEncoder,
+            input_data=torch.randn((1, number_of_path_size, dimension)),
+        ).visual_graph.render(
+            filename=os.path.join(
+                config_files()["artifacts"]["files"], "TransformerEncoderBlock"
+            ),
+            format="pdf",
+        )
+        print(
+            "Transformer encoder block image was saved to ",
+            config_files()["artifacts"]["files"],
+        )
+        print(
+            "Total parameters for the TransformerEncoderBlock: ",
+            TransformerEncoderBlock.total_params(transformerEncoder),
+        )
