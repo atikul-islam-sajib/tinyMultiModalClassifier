@@ -20,3 +20,15 @@ def load_file(filename: None):
         return joblib.load(filename=filename)
     else:
         print("Error: 'filename' must be provided.".capitalize())
+
+
+def weight_init(m):
+    classname = m.__class__.__name__
+    if classname.find("Linear") != -1:
+        nn.init.kaiming_normal_(m.weight.data)
+        if m.bias is not None:
+            nn.init.constant_(m.bias.data, 0.0)
+    elif classname.find("Conv") != -1:
+        nn.init.kaiming_normal_(m.weight.data)
+        if m.bias is not None:
+            nn.init.constant_(m.bias.data, 0.0)
