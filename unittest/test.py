@@ -48,6 +48,10 @@ class UnitTest(unittest.TestCase):
             key=self.K,
             values=self.V,
         )
+        self.transformerEncoderBlock = TransformerEncoderBlock(
+            nheads=self.nheads,
+            dimension=self.dimension,
+        )
 
     def test_pathEmebeddingLayer(self):
         self.assertEqual(
@@ -90,6 +94,14 @@ class UnitTest(unittest.TestCase):
         self.assertEqual(
             self.attention.size(),
             (1, self.nheads, self.number_of_patch_size, self.dimension // self.nheads),
+        )
+
+    def test_transformerEncoderBlock(self):
+        self.assertEqual(
+            self.transformerEncoderBlock(
+                torch.randn((1, self.number_of_patch_size, self.dimension))
+            ).size(),
+            (1, self.number_of_patch_size, self.dimension),
         )
 
 
