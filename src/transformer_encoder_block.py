@@ -39,7 +39,7 @@ class TransformerEncoderBlock(nn.Module):
         )
         self.feed_forward_network = FeedForwardNeuralNetwork(
             in_features=self.dimension,
-            out_features=4 * self.dim_feedforward,
+            out_features=self.dim_feedforward,
             activation=self.activation,
             dropout=self.dropout,
         )
