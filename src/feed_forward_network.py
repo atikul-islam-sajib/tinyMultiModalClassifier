@@ -62,4 +62,4 @@ if __name__ == "__main__":
         activation="relu",
     )
 
-    print(network)
+    print(network(torch.randn((1, 64, 256))).size())
