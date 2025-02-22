@@ -13,6 +13,7 @@ from multihead_attention_layer import MultiHeadAttentionLayer
 from feed_forward_network import FeedForwardNeuralNetwork
 from layer_normalization import LayerNormalization
 from transformer_encoder_block import TransformerEncoderBlock
+from transformer_encoder import TransformerEncoder
 
 
 class UnitTest(unittest.TestCase):
@@ -24,6 +25,13 @@ class UnitTest(unittest.TestCase):
         self.nheads = config_files()["transfomerEncoderBlock"]["nheads"]
         self.activation = config_files()["transfomerEncoderBlock"]["activation"]
         self.dropout = config_files()["transfomerEncoderBlock"]["dropout"]
+        self.num_encoder_layers = config_files()["transfomerEncoderBlock"][
+            "num_encoder_layers"
+        ]
+        self.dimension_feedforward = config_files()["transfomerEncoderBlock"][
+            "dimension_feedforward"
+        ]
+        self.layer_norm_eps = config_files()["transfomerEncoderBlock"]["layer_norm_eps"]
 
         self.number_of_patch_size = (self.image_size // self.patch_size) ** 2
 
@@ -67,6 +75,15 @@ class UnitTest(unittest.TestCase):
             dim_feedforward=self.dimension * 4,
             dropout=self.dropout,
             activation=self.activation,
+        )
+        self.transformer_encoder = TransformerEncoder(
+            dimension=self.dimension,
+            nheads=self.nheads,
+            num_encoder_layers=self.num_encoder_layers,
+            dim_feedforward=self.dimension * 4,
+            dropout=self.dropout,
+            activation=self.activation,
+            layer_norm_eps=self.layer_norm_eps,
         )
 
     def test_pathEmebeddingLayer(self):
@@ -139,6 +156,14 @@ class UnitTest(unittest.TestCase):
     def test_transformer_encoder_block(self):
         self.assertEqual(
             self.transformer_encoder_block(
+                torch.randn((1, self.number_of_patch_size, self.dimension))
+            ).size(),
+            (1, self.number_of_patch_size, self.dimension),
+        )
+
+    def test_transformer_encoder(self):
+        self.assertEqual(
+            self.transformer_encoder(
                 torch.randn((1, self.number_of_patch_size, self.dimension))
             ).size(),
             (1, self.number_of_patch_size, self.dimension),
