@@ -21,6 +21,7 @@ class TransformerEncoderBlock(nn.Module):
         dim_feedforward: int = 1024,
         dropout: float = 0.1,
         activation: str = "relu",
+        layer_norm_eps: float = 1e-05,
     ):
         super(TransformerEncoderBlock, self).__init__()
         self.dimension = dimension
@@ -28,11 +29,14 @@ class TransformerEncoderBlock(nn.Module):
         self.dim_feedforward = dim_feedforward
         self.activation = activation
         self.dropout = dropout
+        self.layer_norm_eps = layer_norm_eps
 
         self.multihead_attention = MultiHeadAttentionLayer(
             nheads=self.nheads, dimension=self.dimension
         )
-        self.layer_normalization = LayerNormalization(dimension=self.dimension)
+        self.layer_normalization = LayerNormalization(
+            dimension=self.dimension, layer_norm_eps=self.layer_norm_eps
+        )
         self.feed_forward_network = FeedForwardNeuralNetwork(
             in_features=self.dimension,
             out_features=4 * self.dim_feedforward,
@@ -74,6 +78,9 @@ if __name__ == "__main__":
     dimension = config_files()["patchEmbeddings"]["dimension"]
     nheads = config_files()["transfomerEncoderBlock"]["nheads"]
     activation = config_files()["transfomerEncoderBlock"]["activation"]
+    dropout = config_files()["transfomerEncoderBlock"]["dropout"]
+    layer_norm_eps = config_files()["transfomerEncoderBlock"]["layer_norm_eps"]
+    dim_feedforward = config_files()["transfomerEncoderBlock"]["dimension_feedforward"]
     dropout = config_files()["transfomerEncoderBlock"]["dropout"]
 
     num_of_patches = (image_size // patch_size) ** 2
@@ -117,6 +124,10 @@ if __name__ == "__main__":
     transformer_encoder_block = TransformerEncoderBlock(
         dimension=dimension,
         nheads=nheads,
+        dim_feedforward=dim_feedforward,
+        dropout=dropout,
+        activation=activation,
+        layer_norm_eps=layer_norm_eps,
     )
 
     assert (torch.randn((1, num_of_patches, dimension)).size()) == (

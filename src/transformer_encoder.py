@@ -40,6 +40,7 @@ class TransformerEncoder(nn.Module):
                     dim_feedforward=self.dim_feedforward,
                     dropout=self.dropout,
                     activation=self.activation,
+                    layer_norm_eps=self.layer_norm_eps,
                 )
                 for _ in tqdm(range(self.num_encoder_layers))
             ]
@@ -73,7 +74,7 @@ if __name__ == "__main__":
     dimension_feedforward = config_files()["transfomerEncoderBlock"][
         "dimension_feedforward"
     ]
-    layer_norm_eps = config_files()["transfomerEncoderBlock"]["layer_norm_eps"]
+    layer_norm_eps = float(config_files()["transfomerEncoderBlock"]["layer_norm_eps"])
 
     parser = argparse.ArgumentParser(
         description="Transformer Encoder Block for the Multi Model".title()
