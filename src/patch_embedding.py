@@ -2,6 +2,7 @@ import os
 import sys
 import torch
 import torch.nn as nn
+from torchview import draw_graph
 
 sys.path.append("/src/")
 

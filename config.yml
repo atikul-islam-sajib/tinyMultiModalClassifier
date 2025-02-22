@@ -7,3 +7,9 @@ artifacts:
     train_images: "./artifacts/outputs/train_images/"
     val_images: "./artifacts/outputs/val_images/"
     test_image: "./artifacts/outputs/test_image/"
+
+patchEmbeddings:
+    channels: 3
+    patch_size: 16
+    image_size: 128
+    dimension: 256

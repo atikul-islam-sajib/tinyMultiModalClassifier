@@ -8,6 +8,11 @@ import torch.nn as nn
 sys.path.append("/src/")
 
 
+def config_files():
+    with open("./config.yml", "r") as config_file:
+        return yaml.safe_load(config_file)
+
+
 def dump_file(value: None, filename: None):
     if (value is not None) and (filename is not None):
         joblib.dump(value=value, filename=filename)
