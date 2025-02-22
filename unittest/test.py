@@ -9,7 +9,7 @@ sys.path.append("./src/")
 from utils import config_files
 from patch_embedding import PatchEmbedding
 from scaled_dot_product import scaled_dot_product
-from transformer_encoder_block import TransformerEncoderBlock
+from multihead_attention_layer import MultiHeadAttentionLayer
 
 
 class UnitTest(unittest.TestCase):
@@ -48,7 +48,7 @@ class UnitTest(unittest.TestCase):
             key=self.K,
             values=self.V,
         )
-        self.transformerEncoderBlock = TransformerEncoderBlock(
+        self.multihead_attention = MultiHeadAttentionLayer(
             nheads=self.nheads,
             dimension=self.dimension,
         )
@@ -96,9 +96,9 @@ class UnitTest(unittest.TestCase):
             (1, self.nheads, self.number_of_patch_size, self.dimension // self.nheads),
         )
 
-    def test_transformerEncoderBlock(self):
+    def test_multihead_attention(self):
         self.assertEqual(
-            self.transformerEncoderBlock(
+            self.multihead_attention(
                 torch.randn((1, self.number_of_patch_size, self.dimension))
             ).size(),
             (1, self.number_of_patch_size, self.dimension),

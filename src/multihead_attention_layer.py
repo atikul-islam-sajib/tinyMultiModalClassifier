@@ -12,9 +12,9 @@ from utils import config_files
 from scaled_dot_product import scaled_dot_product
 
 
-class TransformerEncoderBlock(nn.Module):
+class MultiHeadAttentionLayer(nn.Module):
     def __init__(self, nheads: int = 8, dimension: int = 256):
-        super(TransformerEncoderBlock, self).__init__()
+        super(MultiHeadAttentionLayer, self).__init__()
         self.nheads = nheads
         self.dimension = dimension
 
@@ -65,7 +65,7 @@ class TransformerEncoderBlock(nn.Module):
 
     @staticmethod
     def total_params(model):
-        if isinstance(model, TransformerEncoderBlock):
+        if isinstance(model, MultiHeadAttentionLayer):
             return sum(params.numel() for params in model.parameters())
 
 
@@ -103,11 +103,11 @@ if __name__ == "__main__":
 
     number_of_path_size = (image_size // patch_size) ** 2
 
-    transformerEncoder = TransformerEncoderBlock(
+    multihead_attention = MultiHeadAttentionLayer(
         nheads=nheads,
         dimension=dimension,
     )
-    attention = transformerEncoder(torch.randn((1, number_of_path_size, dimension)))
+    attention = multihead_attention(torch.randn((1, number_of_path_size, dimension)))
     assert (attention.size()) == (
         1,
         number_of_path_size,
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     if args.display:
         draw_graph(
-            model=transformerEncoder,
+            model=multihead_attention,
             input_data=torch.randn((1, number_of_path_size, dimension)),
         ).visual_graph.render(
             filename=os.path.join(
@@ -130,5 +130,5 @@ if __name__ == "__main__":
         )
         print(
             "Total parameters for the TransformerEncoderBlock: ",
-            TransformerEncoderBlock.total_params(transformerEncoder),
+            MultiHeadAttentionLayer.total_params(multihead_attention),
         )
