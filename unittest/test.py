@@ -12,6 +12,7 @@ from scaled_dot_product import scaled_dot_product
 from multihead_attention_layer import MultiHeadAttentionLayer
 from feed_forward_network import FeedForwardNeuralNetwork
 from layer_normalization import LayerNormalization
+from transformer_encoder_block import TransformerEncoderBlock
 
 
 class UnitTest(unittest.TestCase):
@@ -21,6 +22,8 @@ class UnitTest(unittest.TestCase):
         self.patch_size = config_files()["patchEmbeddings"]["patch_size"]
         self.dimension = config_files()["patchEmbeddings"]["dimension"]
         self.nheads = config_files()["transfomerEncoderBlock"]["nheads"]
+        self.activation = config_files()["transfomerEncoderBlock"]["activation"]
+        self.dropout = config_files()["transfomerEncoderBlock"]["dropout"]
 
         self.number_of_patch_size = (self.image_size // self.patch_size) ** 2
 
@@ -58,6 +61,13 @@ class UnitTest(unittest.TestCase):
             in_features=self.dimension, out_features=4 * self.dimension
         )
         self.layer_normalization = LayerNormalization(dimension=self.dimension)
+        self.transformer_encoder_block = TransformerEncoderBlock(
+            dimension=self.dimension,
+            nheads=self.nheads,
+            dim_feedforward=self.dimension * 4,
+            dropout=self.dropout,
+            activation=self.activation,
+        )
 
     def test_pathEmebeddingLayer(self):
         self.assertEqual(
@@ -121,6 +131,14 @@ class UnitTest(unittest.TestCase):
     def test_layer_normalization(self):
         self.assertEqual(
             self.layer_normalization(
+                torch.randn((1, self.number_of_patch_size, self.dimension))
+            ).size(),
+            (1, self.number_of_patch_size, self.dimension),
+        )
+
+    def test_transformer_encoder_block(self):
+        self.assertEqual(
+            self.transformer_encoder_block(
                 torch.randn((1, self.number_of_patch_size, self.dimension))
             ).size(),
             (1, self.number_of_patch_size, self.dimension),
