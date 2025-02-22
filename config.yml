@@ -16,3 +16,5 @@ patchEmbeddings:
 
 transfomerEncoderBlock:
     nheads: 8
+    activation: "relu"
+    dropout: 0.1

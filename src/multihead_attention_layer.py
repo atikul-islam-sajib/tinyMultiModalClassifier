@@ -120,7 +120,7 @@ if __name__ == "__main__":
             input_data=torch.randn((1, number_of_path_size, dimension)),
         ).visual_graph.render(
             filename=os.path.join(
-                config_files()["artifacts"]["files"], "TransformerEncoderBlock"
+                config_files()["artifacts"]["files"], "MultiHeadAttention"
             ),
             format="pdf",
         )
