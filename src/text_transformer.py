@@ -3,6 +3,7 @@ import sys
 import torch
 import argparse
 import torch.nn as nn
+from torchview import draw_graph
 
 sys.path.append("./src/")
 
@@ -65,6 +66,15 @@ class TextTransformerEncoder(nn.Module):
         else:
             raise ValueError("Input must be a torch.Tensor.".capitalize())
 
+    @staticmethod
+    def total_params(model):
+        if isinstance(model, TextTransformerEncoder):
+            return sum(params.numel() for params in model.parameters())
+        else:
+            raise ValueError(
+                "Input must be a TextTransformerEncoder model.".capitalize()
+            )
+
 
 if __name__ == "__main__":
     image_channels = config_files()["patchEmbeddings"]["channels"]
@@ -84,14 +94,86 @@ if __name__ == "__main__":
 
     textual_data = torch.randint(0, sequence_length, (1, sequence_length))
 
-    text_transfomer = TextTransformerEncoder(
-        dimension=dimension,
-        nheads=nheads,
-        num_encoder_layers=num_encoder_layers,
-        dim_feedforward=dimension_feedforward,
-        dropout=dropout,
-        layer_norm_eps=layer_norm_eps,
-        activation=activation,
+    parser = argparse.ArgumentParser(
+        description="Text Transformer Encoder for multimodal classification".title()
+    )
+    parser.add_argument(
+        "--nheads",
+        type=int,
+        default=nheads,
+        help="Number of heads for multi-head attention mechanism",
+    )
+    parser.add_argument(
+        "--dimension", type=int, default=dimension, help="Dimension for transformer"
+    )
+    parser.add_argument(
+        "--num_encoder_layers",
+        type=int,
+        default=num_encoder_layers,
+        help="Number of encoder layers",
+    )
+    parser.add_argument(
+        "--dim_feedforward",
+        type=int,
+        default=dimension_feedforward,
+        help="Dimension for feedforward layers",
+    )
+    parser.add_argument(
+        "--dropout", type=float, default=dropout, help="Dropout probability"
+    )
+    parser.add_argument(
+        "--layer_norm_eps",
+        type=float,
+        default=layer_norm_eps,
+        help="Layer normalization epsilon",
+    )
+    parser.add_argument(
+        "--activation",
+        type=str,
+        default=activation,
+        help="Activation function for feedforward layers",
+    )
+    parser.add_argument(
+        "--display",
+        action="store_true",
+        help="Display the model for the Text Transformer Encoder".capitalize(),
     )
 
-    print(text_transfomer(textual_data).size())
+    args = parser.parse_args()
+
+    text_transfomer = TextTransformerEncoder(
+        dimension=args.dimension,
+        nheads=args.nheads,
+        num_encoder_layers=args.num_encoder_layers,
+        dim_feedforward=args.dim_feedforward,
+        dropout=args.dropout,
+        layer_norm_eps=args.layer_norm_eps,
+        activation=args.activation,
+    )
+
+    assert (text_transfomer(textual_data).size()) == (
+        1,
+        (image_size // patch_size) ** 2,
+        dimension,
+    ), "Text Transfomer class is not working properly".capitalize()
+
+    if args.display:
+        draw_graph(
+            model=text_transfomer,
+            input_data=textual_data,
+        ).visual_graph.render(
+            filename=os.path.join(
+                config_files()["artifacts"]["files"], "TextTransformerEncoder"
+            ),
+            format="pdf",
+        )
+        print(
+            "Text Transformer Encoder architecture saved as TextTransformerEncoder.jpeg in the folder {}".format(
+                config_files()["artifacts"]["files"]
+            )
+        )
+        print(
+            "Total number of parameters of Text Transformer Encoder {}".format(
+                TextTransformerEncoder.total_params(model=text_transfomer)
+            )
+        )
