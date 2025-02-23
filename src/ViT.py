@@ -3,6 +3,7 @@ import sys
 import torch
 import argparse
 import torch.nn as nn
+from torchview import draw_graph
 
 sys.path.append("./src/")
 
@@ -61,6 +62,13 @@ class VisionTransformer(nn.Module):
             return x
         else:
             raise ValueError("Input must be a torch.Tensor.".capitalize())
+
+    @staticmethod
+    def total_params(model):
+        if isinstance(model, VisionTransformer):
+            return sum(params.numel() for params in model.parameters())
+        else:
+            raise ValueError("Input must be a VisionTransformer model.".capitalize())
 
 
 if __name__ == "__main__":
@@ -141,6 +149,11 @@ if __name__ == "__main__":
         default=layer_norm_eps,
         help="Layer normalization epsilon".capitalize(),
     )
+    parser.add_argument(
+        "--display",
+        action="store_true",
+        help="Display the model architectitecture of ViT".capitalize(),
+    )
 
     args = parser.parse_args()
 
@@ -164,3 +177,20 @@ if __name__ == "__main__":
         num_of_patches,
         dimension,
     ), "ViT is not working properly".capitalize()
+
+    if args.display:
+        draw_graph(
+            model=vision_transformer,
+            input_data=image,
+        ).visual_graph.render(
+            filename=os.path.join(config_files()["artifacts"]["files"], "ViT"),
+            format="pdf",
+        )
+        print(
+            "ViT diagram saved to ",
+            config_files()["artifacts"]["files"],
+        )
+        print(
+            "Total number of parameters: ",
+            VisionTransformer.total_params(vision_transformer),
+        )
