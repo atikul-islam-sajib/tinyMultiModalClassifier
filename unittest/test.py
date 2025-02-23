@@ -16,6 +16,7 @@ from transformer_encoder_block import TransformerEncoderBlock
 from transformer_encoder import TransformerEncoder
 from loss_functon import LossFunction
 from ViT import VisionTransformer
+from text_transformer import TextTransformerEncoder
 
 
 class UnitTest(unittest.TestCase):
@@ -97,6 +98,15 @@ class UnitTest(unittest.TestCase):
             channels=self.image_channels,
             patch_size=self.patch_size,
             image_size=self.image_size,
+            dimension=self.dimension,
+            nheads=self.nheads,
+            num_encoder_layers=self.num_encoder_layers,
+            dim_feedforward=self.dimension_feedforward,
+            dropout=self.dropout,
+            layer_norm_eps=self.layer_norm_eps,
+            activation=self.activation,
+        )
+        self.text_transformer = TextTransformerEncoder(
             dimension=self.dimension,
             nheads=self.nheads,
             num_encoder_layers=self.num_encoder_layers,
@@ -202,6 +212,18 @@ class UnitTest(unittest.TestCase):
         y_pred = torch.tensor([0.9, 0.1, 0.8, 0.2])
         self.assertEqual(self.criterion(y_true, y_pred).item(), 15.0)
         self.assertIsInstance(self.criterion(y_true, y_pred), torch.Tensor)
+
+    def test_text_transformer_encoder(self):
+        textual_data = torch.randint(
+            0,
+            (self.image_size // self.patch_size) ** 2,
+            (1, (self.image_size // self.patch_size) ** 2),
+        )
+        self.assertEqual(
+            self.text_transformer(textual_data).size(),
+            (1, (self.image_size // self.patch_size) ** 2, self.dimension),
+        )
+        self.assertIsInstance(self.text_transformer(textual_data), torch.Tensor)
 
 
 if __name__ == "__main__":
