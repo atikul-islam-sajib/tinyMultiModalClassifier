@@ -1,5 +1,10 @@
+import os
+import sys
 import torch
+import argparse
 import torch.nn as nn
+
+sys.path.append("./src/")
 
 
 class LossFunction(nn.Module):
@@ -25,12 +30,34 @@ class LossFunction(nn.Module):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Loss Function to train the multimodal model".title()
+    )
+    parser.add_argument(
+        "--loss_name",
+        type=str,
+        default="BCEWithLogitsLoss",
+        help="Name of the loss function",
+    )
+    parser.add_argument(
+        "--reduction",
+        type=str,
+        default="mean",
+        choices=["mean", "sum"],
+        help="Reduction method for the loss function",
+    )
+
+    args = parser.parse_args()
+
+    loss_name = args.loss_name
+    reduction = args.reduction
+
     predicted = torch.tensor(
         [2.5, -1.0, 1.5, -2.0, 2.0, 3.0, -1.5, -0.5], dtype=torch.float
     )
     actual = torch.tensor([1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0], dtype=torch.float)
 
-    criterion = LossFunction(loss_name="BCEWithLogitsLoss", reduction="mean")
+    criterion = LossFunction(loss_name=loss_name, reduction=reduction)
     loss = criterion(predicted, actual)
 
-    print("Loss:", loss.item())
+    assert loss.__class__ == torch.Tensor, "loss should be a torch.Tensor".capitalize()
