@@ -85,23 +85,95 @@ if __name__ == "__main__":
     ]
     layer_norm_eps = float(config_files()["transfomerEncoderBlock"]["layer_norm_eps"])
 
-    number_of_patches = (image_size // patch_size) ** 2
-    number_of_sequences = (image_size // patch_size) ** 2
+    parser = argparse.ArgumentParser(description="Multi Modal Classifier".title())
+    parser.add_argument(
+        "--image_channels",
+        type=int,
+        default=image_channels,
+        help="Image channels to transform".capitalize(),
+    )
+    parser.add_argument(
+        "--image_size",
+        type=int,
+        default=image_size,
+        help="Image size to transform".capitalize(),
+    )
+    parser.add_argument(
+        "--patch_size",
+        type=int,
+        default=patch_size,
+        help="Patch size for the transformer".capitalize(),
+    )
+    parser.add_argument(
+        "--dimension",
+        type=int,
+        default=dimension,
+        help="Dimension for the transformer".capitalize(),
+    )
+    parser.add_argument(
+        "--nheads",
+        type=int,
+        default=nheads,
+        help="Number of heads for the multi-head attention".capitalize(),
+    )
+    parser.add_argument(
+        "--activation",
+        type=str,
+        default=activation,
+        help="Activation function for the transformer".capitalize(),
+    )
+    parser.add_argument(
+        "--dropout",
+        type=float,
+        default=dropout,
+        help="Dropout probability for the transformer".capitalize(),
+    )
+    parser.add_argument(
+        "--num_encoder_layers",
+        type=int,
+        default=num_encoder_layers,
+        help="Number of layers in the transformer".capitalize(),
+    )
+    parser.add_argument(
+        "--dimension_feedforward",
+        type=int,
+        default=dimension_feedforward,
+        help="Dimension for the feedforward layer".capitalize(),
+    )
+    parser.add_argument(
+        "--layer_norm_eps",
+        type=float,
+        default=layer_norm_eps,
+        help="Layer normalization epsilon".capitalize(),
+    )
+    parser.add_argument(
+        "--display",
+        action="store_true",
+        help="Display the model architectitecture of ViT".capitalize(),
+    )
 
-    images = torch.randn(1, image_channels, image_size, image_size)
+    args = parser.parse_args()
+
+    number_of_patches = (args.image_size // args.patch_size) ** 2
+    number_of_sequences = (args.image_size // args.patch_size) ** 2
+
+    images = torch.randn(1, args.image_channels, args.image_size, args.image_size)
     texts = torch.randint(0, number_of_sequences, (1, number_of_sequences))
 
     classifier = MultiModalClassifier(
-        channels=image_channels,
-        patch_size=patch_size,
-        image_size=image_size,
-        dimension=dimension,
-        nheads=nheads,
-        num_encoder_layers=num_encoder_layers,
-        dim_feedforward=dimension_feedforward,
-        dropout=dropout,
-        layer_norm_eps=layer_norm_eps,
-        activation=activation,
+        channels=args.image_channels,
+        patch_size=args.patch_size,
+        image_size=args.image_size,
+        dimension=args.dimension,
+        nheads=args.nheads,
+        num_encoder_layers=args.num_encoder_layers,
+        dim_feedforward=args.dimension_feedforward,
+        dropout=args.dropout,
+        layer_norm_eps=args.layer_norm_eps,
+        activation=args.activation,
     )
     output = classifier(image=images, text=texts)
     print(output["image_features"].size(), output["text_features"].size())
+    assert (
+        output["text_features"].size() == output["image_features"].size()
+    ), "MultiModalClassifier class is not working properly".capitalize()
