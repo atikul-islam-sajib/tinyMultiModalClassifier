@@ -1,7 +1,7 @@
 import os
 import sys
-import argparse
 import torch
+import argparse
 from tqdm import tqdm
 import torch.nn as nn
 from torchview import draw_graph
