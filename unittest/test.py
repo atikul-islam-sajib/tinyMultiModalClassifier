@@ -15,6 +15,7 @@ from layer_normalization import LayerNormalization
 from transformer_encoder_block import TransformerEncoderBlock
 from transformer_encoder import TransformerEncoder
 from loss_functon import LossFunction
+from ViT import VisionTransformer
 
 
 class UnitTest(unittest.TestCase):
@@ -91,6 +92,18 @@ class UnitTest(unittest.TestCase):
         self.criterion = LossFunction(
             loss_name="BCELoss",
             reduction="mean",
+        )
+        self.vision_transformer = VisionTransformer(
+            channels=self.image_channels,
+            patch_size=self.patch_size,
+            image_size=self.image_size,
+            dimension=self.dimension,
+            nheads=self.nheads,
+            num_encoder_layers=self.num_encoder_layers,
+            dim_feedforward=self.dimension_feedforward,
+            dropout=self.dropout,
+            layer_norm_eps=self.layer_norm_eps,
+            activation=self.activation,
         )
 
     def test_pathEmebeddingLayer(self):
@@ -174,6 +187,14 @@ class UnitTest(unittest.TestCase):
                 torch.randn((1, self.number_of_patch_size, self.dimension))
             ).size(),
             (1, self.number_of_patch_size, self.dimension),
+        )
+
+    def test_vision_transformer(self):
+        self.assertEqual(
+            self.vision_transformer(
+                torch.randn((1, self.image_channels, self.image_size, self.image_size))
+            ).size(),
+            (1, (self.image_size // self.patch_size) ** 2, self.dimension),
         )
 
     def test_loss_function(self):
