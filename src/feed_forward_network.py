@@ -30,6 +30,8 @@ class FeedForwardNeuralNetwork(nn.Module):
             self.activation_function = nn.GELU()
         elif activation == "selu":
             self.activation_function = nn.SELU(inplace=True)
+        elif activation == "leaky":
+            self.activation_function = nn.LeakyReLU(negative_slope=0.01, inplace=True)
         else:
             raise ValueError(
                 "Invalid activation function. Choose from'relu', 'gelu', or'selu'."
