@@ -17,6 +17,7 @@ from transformer_encoder import TransformerEncoder
 from loss_functon import LossFunction
 from ViT import VisionTransformer
 from text_transformer import TextTransformerEncoder
+from multi_modal_clf import MultiModalClassifier
 
 
 class UnitTest(unittest.TestCase):
@@ -107,6 +108,19 @@ class UnitTest(unittest.TestCase):
             activation=self.activation,
         )
         self.text_transformer = TextTransformerEncoder(
+            dimension=self.dimension,
+            nheads=self.nheads,
+            num_encoder_layers=self.num_encoder_layers,
+            dim_feedforward=self.dimension_feedforward,
+            dropout=self.dropout,
+            layer_norm_eps=self.layer_norm_eps,
+            activation=self.activation,
+        )
+
+        self.classifier = MultiModalClassifier(
+            channels=self.image_channels,
+            patch_size=self.patch_size,
+            image_size=self.image_size,
             dimension=self.dimension,
             nheads=self.nheads,
             num_encoder_layers=self.num_encoder_layers,
@@ -224,6 +238,22 @@ class UnitTest(unittest.TestCase):
             (1, (self.image_size // self.patch_size) ** 2, self.dimension),
         )
         self.assertIsInstance(self.text_transformer(textual_data), torch.Tensor)
+
+    def test_multimodal_classifier_without_fusion(self):
+        number_of_patches = (self.image_size // self.patch_size) ** 2
+        number_of_sequences = (self.image_size // self.patch_size) ** 2
+
+        images = torch.randn(1, self.image_channels, self.image_size, self.image_size)
+        texts = torch.randint(0, number_of_sequences, (1, number_of_sequences))
+
+        outputs = self.classifier(image=images, text=texts)
+
+        self.assertEqual(
+            outputs["image_features"].size(), (1, number_of_patches, self.dimension)
+        )
+        self.assertEqual(
+            outputs["text_features"].size(), (1, number_of_sequences, self.dimension)
+        )
 
 
 if __name__ == "__main__":
