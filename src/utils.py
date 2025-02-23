@@ -3,6 +3,8 @@ import sys
 import yaml
 import torch
 import joblib
+import warnings
+from tqdm import tqdm
 import torch.nn as nn
 
 sys.path.append("/src/")
@@ -46,3 +48,30 @@ def device_init(device: str = "cuda"):
         return torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     else:
         return torch.device("cpu")
+
+
+def clean_folders():
+    TRAIN_MODELS: str = "../artifacts/checkpoints/train_models/"
+    BEST_MODEL: str = "../artifacts/checkpoints/best_model/"
+    METRICS_PATH: str = "../artifacts/metrics/"
+    TRAIN_IMAGES: str = "../artifacts/outputs/train_images/"
+    TEST_IMAGE: str = "../artifacts/outputs/test_image/"
+
+    warnings.warn(
+        "Warning! This will remove the previous files, which might be useful in the future. "
+        "You may want to download the previous files or use MLflow to track and manage them. "
+        "Suggestions for updating them are welcome."
+    )
+
+    for path in tqdm(
+        [TRAIN_MODELS, BEST_MODEL, METRICS_PATH, TRAIN_IMAGES, TEST_IMAGE]
+    ):
+        for files in os.listdir(path):
+            file_path = os.path.join(path, files)
+            try:
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+            except Exception as e:
+                print(f"Error occurred while deleting {file_path}: {e}")
+
+        print("{} folders completed".format().capitalize())
