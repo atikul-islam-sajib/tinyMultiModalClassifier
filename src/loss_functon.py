@@ -17,6 +17,8 @@ class LossFunction(nn.Module):
             self.criterion = nn.BCEWithLogitsLoss(reduction=reduction)
         elif loss_name == "BCELoss":
             self.criterion = nn.BCELoss(reduction=reduction)
+        elif loss_name == "CCE":
+            self.criterion = nn.CrossEntropyLoss(reduction=reduction)
         else:
             raise ValueError(f"Unsupported loss function: {loss_name}")
 
