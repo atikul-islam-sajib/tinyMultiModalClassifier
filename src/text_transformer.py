@@ -2,6 +2,7 @@ import os
 import sys
 import torch
 import argparse
+import warnings
 import torch.nn as nn
 from torchview import draw_graph
 
@@ -45,8 +46,15 @@ class TextTransformerEncoder(nn.Module):
         if self.dimension is None:
             self.dimension = (self.patch_size**2) * self.image_size
 
+        warnings.warn(
+            "The number of vocabularies (unique words) is calculated by multiplying the dimension with the patch size. "
+            "If you need a larger vocabulary size, please increase the patch size and image size."
+        )
+
+        self.number_of_vocabularies = self.image_size * self.dimension
+
         self.embedding = nn.Embedding(
-            num_embeddings=self.sequence_length, embedding_dim=self.dimension
+            num_embeddings=self.number_of_vocabularies, embedding_dim=self.dimension
         )
         self.transformer_encoder = TransformerEncoder(
             dimension=self.dimension,
