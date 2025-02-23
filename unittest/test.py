@@ -14,6 +14,7 @@ from feed_forward_network import FeedForwardNeuralNetwork
 from layer_normalization import LayerNormalization
 from transformer_encoder_block import TransformerEncoderBlock
 from transformer_encoder import TransformerEncoder
+from loss_functon import LossFunction
 
 
 class UnitTest(unittest.TestCase):
@@ -31,7 +32,9 @@ class UnitTest(unittest.TestCase):
         self.dimension_feedforward = config_files()["transfomerEncoderBlock"][
             "dimension_feedforward"
         ]
-        self.layer_norm_eps = config_files()["transfomerEncoderBlock"]["layer_norm_eps"]
+        self.layer_norm_eps = float(
+            config_files()["transfomerEncoderBlock"]["layer_norm_eps"]
+        )
 
         self.number_of_patch_size = (self.image_size // self.patch_size) ** 2
 
@@ -84,6 +87,10 @@ class UnitTest(unittest.TestCase):
             dropout=self.dropout,
             activation=self.activation,
             layer_norm_eps=self.layer_norm_eps,
+        )
+        self.criterion = LossFunction(
+            loss_name="BCELoss",
+            reduction="mean",
         )
 
     def test_pathEmebeddingLayer(self):
@@ -168,6 +175,12 @@ class UnitTest(unittest.TestCase):
             ).size(),
             (1, self.number_of_patch_size, self.dimension),
         )
+
+    def test_loss_function(self):
+        y_true = torch.tensor([1.0, 0.0, 1.0, 0.0], dtype=torch.float)
+        y_pred = torch.tensor([0.9, 0.1, 0.8, 0.2])
+        self.assertEqual(self.criterion(y_true, y_pred).item(), 15.0)
+        self.assertIsInstance(self.criterion(y_true, y_pred), torch.Tensor)
 
 
 if __name__ == "__main__":
