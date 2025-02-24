@@ -1,16 +1,3 @@
-# ##--------- For Notebook -------- #
-# artifacts:
-#     raw_data_path: "../data/raw/"
-#     processed_data_path: "../data/processed/"
-#     checkpoints: "../artifacts/checkpoints/"
-#     train_models: "../artifacts/checkpoints/train_models/"
-#     best_model: "../artifacts/checkpoints/best_model/"
-#     files: "../artifacts/files/"
-#     metrics: "../artifacts/metrics/"
-#     train_images: "../artifacts/outputs/train_images/"
-#     val_images: "../artifacts/outputs/val_images/"
-#     test_image: "../artifacts/outputs/test_image/"
-
 artifacts:
     raw_data_path: "./data/raw/"
     processed_data_path: "./data/processed/"
@@ -41,3 +28,23 @@ dataloader:
     dataset: "./raw/image_dataset.zip"
     batch_size: 4
     split_size: 0.25
+    
+trainer:
+    model: None
+    epochs: 100
+    lr: 1e-4
+    weight_decay: 1e-2
+    beta1: 0.5
+    beta2: 0.999
+    momentum: 0.95
+    lr_scheduler: False
+    step_size: 20
+    gamma: 0.1
+    l1_regularization: False
+    l2_regularization: False
+    l1_lambda: 0.0
+    l2_lambda: 0.0
+    optimizer: "adam" 
+    mlflow: False
+    verbose: False
+    device: "cuda"
