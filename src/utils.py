@@ -93,3 +93,15 @@ def text_preprocessing(instance):
     instance = " ".join(word for word in instance.split() if word not in stop_words)
 
     return instance
+
+
+def create_sequences(instance, vocabulary: int = 4096, sequence_length: int = 196):
+    sequence = [vocabulary.get(word, vocabulary["<UNK>"]) for word in instance.split()]
+    if len(sequence) > sequence_length:
+        sequence = sequence[:sequence_length]
+
+    elif len(sequence) < sequence_length:
+        sequence.extend([vocabulary["<UNK>"]] * (sequence_length - len(sequence)))
+    assert (
+        len(sequence) == sequence_length
+    ), f"Error: Sequence length is {len(sequence)} instead of {sequence_length}"
