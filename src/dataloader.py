@@ -385,6 +385,12 @@ class Loader:
                 ax.axis("off")
 
             plt.tight_layout()
+            plt.savefig(
+                os.path.join(
+                    config_files()["artifacts"]["files"],
+                    "images.png",
+                )
+            )
             plt.show()
 
         except Exception as e:
