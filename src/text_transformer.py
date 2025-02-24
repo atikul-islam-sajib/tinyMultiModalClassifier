@@ -47,7 +47,7 @@ class TextTransformerEncoder(nn.Module):
             self.dimension = (self.patch_size**2) * self.image_size
 
         warnings.warn(
-            "The number of vocabularies (unique words) is calculated by multiplying the dimension with the patch size. "
+            "The number of vocabularies (unique words) is calculated by multiplying the 'dimension with the patch size.' "
             "If you need a larger vocabulary size, please increase the patch size and image size."
         )
 
