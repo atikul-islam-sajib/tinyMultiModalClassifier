@@ -6,7 +6,7 @@ import torch.nn as nn
 
 sys.path.append("./src/")
 
-from utils import config_files
+from utils import config_files, load_file
 from ViT import VisionTransformer
 from text_transformer import TextTransformerEncoder
 
@@ -177,3 +177,23 @@ if __name__ == "__main__":
     assert (
         output["text_features"].size() == output["image_features"].size()
     ), "MultiModalClassifier class is not working properly".capitalize()
+
+    """
+    ################################
+    # Just for verifying purposes: #
+    ################################
+
+    train_dataloader = load_file(
+        filename=os.path.join(
+            config_files()["artifacts"]["processed_data_path"], "train_dataloader.pkl"
+        )
+    )
+
+    images, text_sequences, labels = next(iter(train_dataloader))
+
+    output = classifier(image=images, text=text_sequences)
+    print(output["image_features"].size(), output["text_features"].size())
+    assert (
+        output["text_features"].size() == output["image_features"].size()
+    ), "MultiModalClassifier class is not working properly".capitalize()
+    """
