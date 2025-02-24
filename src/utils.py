@@ -1,13 +1,20 @@
 import os
+import re
 import sys
 import yaml
+import nltk
 import torch
 import joblib
 import warnings
-from tqdm import tqdm
 import torch.nn as nn
+from tqdm import tqdm
+from nltk.corpus import stopwords
+
+nltk.download("stopwords")
 
 sys.path.append("/src/")
+
+stop_words = set(stopwords.words("english"))
 
 
 def config_files():
@@ -75,3 +82,11 @@ def clean_folders():
                 print(f"Error occurred while deleting {file_path}: {e}")
 
         print("{} folders completed".format().capitalize())
+
+
+def text_preprocessing(instance):
+    instance = re.sub(r'[\n\'"()]+|XXXX|x-\d{4}', "", instance)
+    instance = re.sub(r"[^a-wy-zA-WY-Z\s]", "", instance)
+    instance = instance.lower()
+
+    return instance

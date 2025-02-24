@@ -14,3 +14,4 @@ torchsummary
 torchmetrics
 scikit-image
 opencv-python
+nltk
