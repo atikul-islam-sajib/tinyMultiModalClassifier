@@ -1,0 +1,30 @@
+artifacts:
+    raw_data_path: "../data/raw/"
+    processed_data_path: "../data/processed/"
+    checkpoints: "../artifacts/checkpoints/"
+    train_models: "../artifacts/checkpoints/train_models/"
+    best_model: "../artifacts/checkpoints/best_model/"
+    files: "../artifacts/files/"
+    metrics: "../artifacts/metrics/"
+    train_images: "../artifacts/outputs/train_images/"
+    val_images: "../artifacts/outputs/val_images/"
+    test_image: "../artifacts/outputs/test_image/"
+
+patchEmbeddings:
+    channels: 3
+    patch_size: 16
+    image_size: 224
+    dimension: 256
+
+transfomerEncoderBlock:
+    nheads: 8
+    activation: "relu"
+    dropout: 0.1
+    num_encoder_layers: 6
+    dimension_feedforward: 1024
+    layer_norm_eps: 1e-5
+
+dataloader:
+    dataset: "./raw/image_dataset.zip"
+    batch_size: 4
+    split_size: 0.25
