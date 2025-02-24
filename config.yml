@@ -13,7 +13,7 @@ artifacts:
 patchEmbeddings:
     channels: 3
     patch_size: 16
-    image_size: 128
+    image_size: 224
     dimension: 256
 
 transfomerEncoderBlock:
@@ -23,3 +23,8 @@ transfomerEncoderBlock:
     num_encoder_layers: 6
     dimension_feedforward: 1024
     layer_norm_eps: 1e-5
+
+dataloader:
+    dataset: "./raw/image_dataset.zip"
+    batch_size: 4
+    split_size: 0.25

@@ -87,6 +87,9 @@ def clean_folders():
 def text_preprocessing(instance):
     instance = re.sub(r'[\n\'"()]+|XXXX|x-\d{4}', "", instance)
     instance = re.sub(r"[^a-wy-zA-WY-Z\s]", "", instance)
+
     instance = instance.lower()
+
+    instance = " ".join(word for word in instance.split() if word not in stop_words)
 
     return instance
