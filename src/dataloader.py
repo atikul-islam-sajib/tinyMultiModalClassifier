@@ -3,6 +3,8 @@ import sys
 import torch
 import zipfile
 import argparse
+import pandas as pd
+import numpy as np
 import torch.nn as nn
 from torchvision import transforms
 from torch.utils.data import DataLoader
@@ -37,7 +39,19 @@ class Loader:
         )
 
     def preprocess_csv_file(self):
-        pass
+        dataframe_path = os.path.join(
+            config_files()["artifacts"]["raw_data_path"], "image_labels_reports.csv"
+        )
+        df = pd.read_csv(dataframe_path)
+        if ("text" in df.columns) and ("label" in df.columns):
+            labels = df.loc[:, "label"]
+            reports = df.loc[:, "text"]
+
+            return {"labels": labels, "reports": reports}
+        else:
+            raise ValueError(
+                "The 'text' and 'labels' columns are missing in the CSV file.".capitalize()
+            )
 
     def unzip_image_dataset(self):
         if os.path.exists(config_files()["artifacts"]["raw_data_path"]):
@@ -74,4 +88,7 @@ class Loader:
 
 if __name__ == "__main__":
     loader = Loader(channels=3, image_size=128, batch_size=4, split_size=0.25)
-    loader.unzip_image_dataset()
+    # loader.unzip_image_dataset()
+    dataset = loader.preprocess_csv_file()
+
+    print(dataset["reports"])
