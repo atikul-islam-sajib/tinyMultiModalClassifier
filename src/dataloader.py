@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 
 sys.path.append("./src/")
 
-from utils import config_files
+from utils import config_files, text_preprocessing
 
 
 class Loader:
@@ -46,6 +46,7 @@ class Loader:
         if ("text" in df.columns) and ("label" in df.columns):
             labels = df.loc[:, "label"]
             reports = df.loc[:, "text"]
+            reports = reports.apply(text_preprocessing)
 
             return {"labels": labels, "reports": reports}
         else:
