@@ -28,6 +28,8 @@ class Loader:
         self.batch_size = batch_size
         self.split_size = split_size
 
+        self.vocabulary = {"<UNK>": 0}
+
     def image_transform(self):
         return transforms.Compose(
             [
@@ -53,6 +55,11 @@ class Loader:
             raise ValueError(
                 "The 'text' and 'labels' columns are missing in the CSV file.".capitalize()
             )
+
+    def create_vocabularies(self, instance):
+        for word in instance.split(" "):
+            if word not in self.vocabulary:
+                self.vocabulary[word] = len(self.vocabulary)
 
     def unzip_image_dataset(self):
         if os.path.exists(config_files()["artifacts"]["raw_data_path"]):
@@ -92,4 +99,4 @@ if __name__ == "__main__":
     # loader.unzip_image_dataset()
     dataset = loader.preprocess_csv_file()
 
-    print(dataset["reports"])
+    print(dataset["labels"])
