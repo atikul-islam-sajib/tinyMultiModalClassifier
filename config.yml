@@ -1,4 +1,6 @@
 artifacts:
+    raw_data_path: "./data/raw/"
+    processed_data_path: "./data/processed/"
     checkpoints: "./artifacts/checkpoints/"
     train_models: "./artifacts/checkpoints/train_models/"
     best_model: "./artifacts/checkpoints/best_model/"
