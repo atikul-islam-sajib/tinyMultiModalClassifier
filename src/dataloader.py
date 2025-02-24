@@ -6,15 +6,12 @@ import torch
 import zipfile
 import argparse
 import pandas as pd
-import numpy as np
-import torch.nn as nn
 from PIL import Image
 from tqdm import tqdm
+from textwrap import fill
 import matplotlib.pyplot as plt
 from torchvision import transforms
 from torch.utils.data import DataLoader
-from textwrap import fill
-from sklearn.model_selection import train_test_split
 
 sys.path.append("./src/")
 
@@ -134,7 +131,6 @@ class Loader:
 
         try:
             reports.apply(self.create_vocabularies)
-
             pd.DataFrame(
                 list(self.vocabulary.items()), columns=["vocabulary", "index"]
             ).to_csv(
@@ -149,7 +145,6 @@ class Loader:
         dataframe["sequences"] = reports.apply(
             self.create_sequences, sequence_length=self.sequence_length
         )
-
         all_image_path = os.path.join(
             config_files()["artifacts"]["processed_data_path"], "image_dataset"
         )
@@ -286,7 +281,6 @@ class Loader:
                         config_files()["artifacts"]["processed_data_path"]
                     )
                 )
-
             except StopIteration:
                 raise RuntimeError(
                     "Train dataloader is empty. Check data loading logic."
@@ -329,6 +323,7 @@ class Loader:
                 "Label Size": str([train_labels.size()]),
                 "Label Type": str([train_labels.dtype]),
                 "Text Type": str([test_sequences.dtype]),
+                "Labels": str([train_labels.unique()]),
             }
         ).to_csv(
             os.path.join(
