@@ -139,11 +139,21 @@ class Trainer:
             print(f"Unexpected Error in Trainer Initialization: {e}")
             sys.exit(1)
 
-    def l1_regularizer(self):
-        pass
+    def l1_regularizer(self, model):
+        if isinstance(model, MultiModalClassifier):
+            return self.l1_lambda * sum(
+                torch.norm(input=params, p=1) for params in model.parameters()
+            )
+        else:
+            raise ValueError("Model must be an instance of MultiModalClassifier")
 
     def l2_regularizer(self):
-        pass
+        if isinstance(model, MultiModalClassifier):
+            return self.l2_lambda * sum(
+                torch.norm(input=params, p=2) for params in model.parameters()
+            )
+        else:
+            raise ValueError("Model must be an instance of MultiModalClassifier")
 
     def saved_checkpoints(self):
         pass
