@@ -11,6 +11,34 @@ from ViT import VisionTransformer
 from text_transformer import TextTransformerEncoder
 
 
+class Classifier(nn.Module):
+    def __init__(self, dimension: int = 256):
+        super(Classifier, self).__init__()
+        self.in_features = dimension * 2
+        self.out_features = dimension // 2
+
+        self.layers = list()
+
+        for idx in range(3):
+            if idx !=2:
+                self.layers.append(nn.Linear(in_features = self.in_features, out_features = self.out_features))
+                self.layers.append(nn.ReLU())
+                self.layers.append(nn.BatchNorm1d(num_features = self.out_features))
+
+                self.in_features = self.out_features
+                self.out_features = self.in_features // 2
+            else:
+                self.layers.append(nn.Linear(in_features = self.in_features, out_features = self.in_features//self.in_features))
+
+        self.classifier = nn.Sequential(*self.layers)
+
+    def forward(self, x: torch.Tensor):
+        if isinstance(x, torch.Tensor):
+            return self.classifier(x)
+        else:
+            raise ValueError("Input must be a torch.Tensor.".capitalize())
+
+
 class MultiModalClassifier(nn.Module):
     def __init__(
         self,
@@ -38,6 +66,10 @@ class MultiModalClassifier(nn.Module):
         self.layer_norm_eps = layer_norm_eps
         self.activation = activation
 
+        self.in_features = self.dimension * 2
+
+        self.classifier_layers = list()
+
         self.vision_transformer = VisionTransformer(
             channels=channels,
             patch_size=patch_size,
@@ -61,12 +93,43 @@ class MultiModalClassifier(nn.Module):
             activation=self.activation,
         )
 
+        # for idx in range():
+        #     if idx != 2:
+        #         self.classifier_layers.append(
+        #             nn.Linear(
+        #                 in_features=self.in_features, out_features=self.in_features // 2
+        #             )
+        #         )
+        #         self.classifier_layers.append(
+        #             nn.LeakyReLU(negative_slope=0.1, inplace=True)
+        #         )
+        #         self.classifier_layers.append(nn.BatchNorm1d(num_features = self.in_features // 2))
+        #     else:
+        #         self.classifier_layers.append(
+        #             nn.Linear(in_features=self.in_features*2, out_features=1)
+        #         )
+
+        #     self.in_features = self.in_features // 2
+        #     print(self.in_features)
+
+        # self.classifier = nn.Sequential(*self.classifier_layers)
+
+        self.clf = Classifier(dimension=self.dimension)
+
     def forward(self, image: torch.Tensor, text: torch.Tensor):
         if isinstance(image, torch.Tensor) and isinstance(text, torch.Tensor):
             image_features = self.vision_transformer(image)
             text_features = self.text_transformer(text)
 
-            return {"image_features": image_features, "text_features": text_features}
+            image_features = image_features.mean(dim=1)  # 4, 256
+            text_features = text_features.mean(dim=1)  # 4, 256
+            print(image_features.shape, text_features.shape)
+            fusion = torch.cat((image_features, text_features), dim=1)
+            print(fusion.shape)
+            classifier = self.clf(fusion)
+
+            # return {"image_features": image_features, "text_features": text_features}
+            return classifier
         else:
             raise ValueError("Both inputs must be torch.Tensor.".capitalize())
 
@@ -157,8 +220,8 @@ if __name__ == "__main__":
     number_of_patches = (args.image_size // args.patch_size) ** 2
     number_of_sequences = (args.image_size // args.patch_size) ** 2
 
-    images = torch.randn(1, args.image_channels, args.image_size, args.image_size)
-    texts = torch.randint(0, number_of_sequences, (1, number_of_sequences))
+    images = torch.randn(4, args.image_channels, args.image_size, args.image_size)
+    texts = torch.randint(0, number_of_sequences, (4, number_of_sequences))
 
     classifier = MultiModalClassifier(
         channels=args.image_channels,
@@ -173,10 +236,11 @@ if __name__ == "__main__":
         activation=args.activation,
     )
     output = classifier(image=images, text=texts)
-    print(output["image_features"].size(), output["text_features"].size())
-    assert (
-        output["text_features"].size() == output["image_features"].size()
-    ), "MultiModalClassifier class is not working properly".capitalize()
+    print(output.size())
+    # print(output["image_features"].size(), output["text_features"].size())
+    # assert (
+    #     output["text_features"].size() == output["image_features"].size()
+    # ), "MultiModalClassifier class is not working properly".capitalize()
 
     """
     ################################
