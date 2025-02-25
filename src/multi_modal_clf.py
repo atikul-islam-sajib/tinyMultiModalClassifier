@@ -6,8 +6,8 @@ import torch.nn as nn
 
 sys.path.append("./src/")
 
-from utils import config_files, load_file
 from ViT import VisionTransformer
+from utils import config_files, load_file
 from text_transformer import TextTransformerEncoder
 
 
@@ -21,23 +21,23 @@ class Classifier(nn.Module):
 
         for idx in range(3):
             if idx != 2:
-                self.layers.append(
+                self.layers += [
                     nn.Linear(
                         in_features=self.in_features, out_features=self.out_features
                     )
-                )
-                self.layers.append(nn.ReLU(inplace=True))
-                self.layers.append(nn.BatchNorm1d(num_features=self.out_features))
+                ]
+                self.layers += [nn.ReLU(inplace=True)]
+                self.layers += [nn.BatchNorm1d(num_features=self.out_features)]
 
                 self.in_features = self.out_features
                 self.out_features = self.in_features // 2
             else:
-                self.layers.append(
+                self.layers += [
                     nn.Linear(
                         in_features=self.in_features,
                         out_features=self.in_features // self.in_features,
                     )
-                )
+                ]
 
         self.classifier = nn.Sequential(*self.layers)
 
@@ -120,6 +120,13 @@ class MultiModalClassifier(nn.Module):
             return classifier
         else:
             raise ValueError("Both inputs must be torch.Tensor.".capitalize())
+
+    @staticmethod
+    def total_params(model):
+        if isinstance(model, MultiModalClassifier):
+            return sum(p.numel() for p in model.parameters() if p.requires_grad)
+        else:
+            raise ValueError("Input must be MultiModalClassifier.".capitalize())
 
 
 if __name__ == "__main__":
