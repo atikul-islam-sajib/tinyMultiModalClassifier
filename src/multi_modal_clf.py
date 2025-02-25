@@ -34,9 +34,17 @@ class Classifier(nn.Module):
 
     def forward(self, x: torch.Tensor):
         if isinstance(x, torch.Tensor):
-            return self.classifier(x)
+            return self.classifier(x).view(-1)
         else:
             raise ValueError("Input must be a torch.Tensor.".capitalize())
+        
+    @staticmethod
+    def total_params(model):
+        if isinstance(model, Classifier):
+            return sum(params.numel() for params in model.parameters())
+        else:
+            raise ValueError("Input must be a Classifier model.".capitalize())
+        
 
 
 class MultiModalClassifier(nn.Module):
@@ -93,40 +101,17 @@ class MultiModalClassifier(nn.Module):
             activation=self.activation,
         )
 
-        # for idx in range():
-        #     if idx != 2:
-        #         self.classifier_layers.append(
-        #             nn.Linear(
-        #                 in_features=self.in_features, out_features=self.in_features // 2
-        #             )
-        #         )
-        #         self.classifier_layers.append(
-        #             nn.LeakyReLU(negative_slope=0.1, inplace=True)
-        #         )
-        #         self.classifier_layers.append(nn.BatchNorm1d(num_features = self.in_features // 2))
-        #     else:
-        #         self.classifier_layers.append(
-        #             nn.Linear(in_features=self.in_features*2, out_features=1)
-        #         )
-
-        #     self.in_features = self.in_features // 2
-        #     print(self.in_features)
-
-        # self.classifier = nn.Sequential(*self.classifier_layers)
-
-        self.clf = Classifier(dimension=self.dimension)
+        self.classifier = Classifier(dimension=self.dimension)
 
     def forward(self, image: torch.Tensor, text: torch.Tensor):
         if isinstance(image, torch.Tensor) and isinstance(text, torch.Tensor):
             image_features = self.vision_transformer(image)
             text_features = self.text_transformer(text)
 
-            image_features = image_features.mean(dim=1)  # 4, 256
-            text_features = text_features.mean(dim=1)  # 4, 256
-            print(image_features.shape, text_features.shape)
+            image_features = torch.mean(input = image_features, dim = 1)
+            text_features = torch.mean(input = text_features, dim = 1)
             fusion = torch.cat((image_features, text_features), dim=1)
-            print(fusion.shape)
-            classifier = self.clf(fusion)
+            classifier = self.classifier(fusion)
 
             # return {"image_features": image_features, "text_features": text_features}
             return classifier
