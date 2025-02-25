@@ -2,9 +2,11 @@ import os
 import sys
 import torch
 import argparse
+import numpy as np
 from tqdm import tqdm
 import torch.nn as nn
 import torch.optim as optim
+from sklearn.metrics import accuracy_score
 
 sys.path.append("./src/")
 
@@ -158,14 +160,103 @@ class Trainer:
     def saved_checkpoints(self):
         pass
 
-    def update_train(self):
-        pass
+    def update_train(self, **kwargs):
+        predicted = kwargs["predicted"].float()
+        labels = kwargs["labels"].float()
 
-    def display_progress(self):
-        pass
+        self.optimizer.zero_grad()
+
+        loss = self.criterion(predicted, labels)
+
+        loss.backward()
+        self.optimizer.step()
+
+        return loss.item()
+
+    def display_progress(
+        self,
+        train_loss: list,
+        valid_loss: list,
+        train_accuracy: list,
+        valid_accuracy: list,
+        kwargs: dict,
+    ):
+        if (
+            isinstance(train_loss, list)
+            and isinstance(valid_loss, list)
+            and isinstance(train_accuracy, list)
+            and isinstance(valid_accuracy, list)
+        ):
+            train_loss = np.mean(train_loss)
+            valid_loss = np.mean(valid_loss)
+            train_accuracy = np.mean(train_accuracy)
+            valid_accuracy = np.mean(valid_accuracy)
+            number_of_epochs = self.epochs
+            epoch = kwargs["epochs"]
+
+            print(
+                f"Epoch [{epoch}/{number_of_epochs}] | "
+                f"Train Loss: {train_loss:.4f} | "
+                f"Test Loss: {valid_loss:.4f} | "
+                f"Train Acc: {train_accuracy:.4f} | "
+                f"Valid Acc: {valid_accuracy:.4f}"
+            )
 
     def train(self):
-        pass
+        for epoch in tqdm(range(self.epochs), desc="Training"):
+            train_loss = []
+            valid_loss = []
+            train_accuracy = []
+            valid_accuracy = []
+
+            for idx, (images, texts, labels) in enumerate(self.train_dataloader):
+                images = images.to(self.device)
+                texts = texts.to(self.device)
+                labels = labels.to(self.device)
+
+                predicted = self.model(image=images, text=texts)
+
+                train_loss.append(self.update_train(predicted=predicted, labels=labels))
+
+                predicted = torch.where(predicted > 0.5, 1, 0)
+                predicted = predicted.detach().cpu().numpy()
+                labels = labels.detach().cpu().numpy()
+
+                train_accuracy.append(accuracy_score(predicted, labels))
+
+            for idx, (images, texts, labels) in enumerate(self.test_dataloader):
+                images = images.to(self.device)
+                texts = texts.to(self.device)
+                labels = labels.to(self.device)
+
+                predicted = self.model(image=images, text=texts)
+
+                valid_loss.append(
+                    self.criterion(predicted.float(), labels.float()).item()
+                )
+
+                predicted = torch.where(predicted > 0.5, 1, 0)
+                predicted = predicted.detach().cpu().numpy()
+                labels = labels.detach().cpu().numpy()
+
+                valid_accuracy.append(accuracy_score(predicted, labels))
+
+            try:
+                self.display_progress(
+                    train_loss=train_loss,
+                    valid_loss=valid_loss,
+                    train_accuracy=train_accuracy,
+                    valid_accuracy=valid_accuracy,
+                    kwargs={"epochs": epoch + 1},
+                )
+            except KeyError as e:
+                print(f"[Error] Missing key in kwargs: {e}")
+            except TypeError as e:
+                print(f"[Error] Type mismatch in display_progress arguments: {e}")
+            except ValueError as e:
+                print(f"[Error] Invalid value encountered: {e}")
+            except Exception as e:
+                print(f"[Unexpected Error] {e}")
 
 
 if __name__ == "__main__":
@@ -261,3 +352,5 @@ if __name__ == "__main__":
         verbose=args.verbose,
         mlflow=args.mlflow,
     )
+
+    trainer.train()
