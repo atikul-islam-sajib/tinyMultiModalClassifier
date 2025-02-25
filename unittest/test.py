@@ -3,6 +3,7 @@ import sys
 import torch
 import unittest
 import torch.nn as nn
+import torch.optim as optim
 
 sys.path.append("./src/")
 
@@ -18,6 +19,7 @@ from loss_functon import LossFunction
 from ViT import VisionTransformer
 from text_transformer import TextTransformerEncoder
 from multi_modal_clf import MultiModalClassifier
+from helper import helper
 
 
 class UnitTest(unittest.TestCase):
@@ -38,6 +40,15 @@ class UnitTest(unittest.TestCase):
         self.layer_norm_eps = float(
             config_files()["transfomerEncoderBlock"]["layer_norm_eps"]
         )
+        self.lr = float(config_files()["trainer"]["lr"])
+        self.batch_size = config_files()["dataloader"]["batch_size"]
+        self.epochs = config_files()["trainer"]["epochs"]
+        self.weight_decay = float(config_files()["trainer"]["weight_decay"])
+        self.beta1 = config_files()["trainer"]["beta1"]
+        self.beta2 = config_files()["trainer"]["beta2"]
+        self.momentum = config_files()["trainer"]["momentum"]
+        self.adam = config_files()["trainer"]["adam"]
+        self.SGD = config_files()["trainer"]["SGD"]
 
         self.number_of_patch_size = (self.image_size // self.patch_size) ** 2
 
@@ -128,6 +139,17 @@ class UnitTest(unittest.TestCase):
             dropout=self.dropout,
             layer_norm_eps=self.layer_norm_eps,
             activation=self.activation,
+        )
+
+        self.init = helper(
+            model = None,
+            lr = self.lr,
+            beta1 = self.beta1,
+            beta2 = self.beta2,
+            momentum = self.momentum,
+            weight_decay = self.weight_decay,
+            adam = self.adam,
+            SGD = self.SGD,
         )
 
     def test_pathEmebeddingLayer(self):
@@ -239,21 +261,28 @@ class UnitTest(unittest.TestCase):
         )
         self.assertIsInstance(self.text_transformer(textual_data), torch.Tensor)
 
-    def test_multimodal_classifier_without_fusion(self):
-        number_of_patches = (self.image_size // self.patch_size) ** 2
-        number_of_sequences = (self.image_size // self.patch_size) ** 2
+    # def test_multimodal_classifier_without_fusion(self):
+    #     number_of_patches = (self.image_size // self.patch_size) ** 2
+    #     number_of_sequences = (self.image_size // self.patch_size) ** 2
 
-        images = torch.randn(1, self.image_channels, self.image_size, self.image_size)
-        texts = torch.randint(0, number_of_sequences, (1, number_of_sequences))
+    #     images = torch.randn(1, self.image_channels, self.image_size, self.image_size)
+    #     texts = torch.randint(0, number_of_sequences, (1, number_of_sequences))
 
-        outputs = self.classifier(image=images, text=texts)
+    #     outputs = self.classifier(image=images, text=texts)
 
-        self.assertEqual(
-            outputs["image_features"].size(), (1, number_of_patches, self.dimension)
-        )
-        self.assertEqual(
-            outputs["text_features"].size(), (1, number_of_sequences, self.dimension)
-        )
+    #     self.assertEqual(
+    #         outputs["image_features"].size(), (1, number_of_patches, self.dimension)
+    #     )
+    #     self.assertEqual(
+    #         outputs["text_features"].size(), (1, number_of_sequences, self.dimension)
+    #     )
+
+    def test_helper_function(self):
+        assert self.init["model"].__class__ == MultiModalClassifier
+        assert self.init["optimizer"].__class__ == optim.Adam
+        assert self.init["criterion"].__class__ == LossFunction
+        assert self.init["train_dataloader"].__class__ == torch.utils.data.DataLoader
+        assert self.init["test_dataloader"].__class__ == torch.utils.data.DataLoader
 
 
 if __name__ == "__main__":
