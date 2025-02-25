@@ -1,5 +1,6 @@
 import os
 import sys
+import torch
 import torch.nn as nn
 import torch.optim as optim
 
@@ -114,3 +115,6 @@ if __name__ == "__main__":
 
     assert init["model"].__class__ == MultiModalClassifier
     assert init["optimizer"].__class__ == optim.Adam
+    assert init["criterion"].__class__ == LossFunction
+    assert init["train_dataloader"].__class__ == torch.utils.data.DataLoader
+    assert init["test_dataloader"].__class__ == torch.utils.data.DataLoader
