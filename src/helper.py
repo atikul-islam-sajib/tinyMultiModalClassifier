@@ -1,7 +1,7 @@
 import os
 import sys
-import argparse
 import torch
+import argparse
 import torch.nn as nn
 import torch.optim as optim
 
@@ -31,12 +31,13 @@ def load_dataloader():
 
 def helper(**kwargs):
     model = kwargs["model"]
-    lr: float = kwargs["learning_rate"]
+    lr: float = kwargs["lr"]
     beta1: float = kwargs["beta1"]
     beta2: float = kwargs["beta2"]
     momentum: float = kwargs["momentum"]
     weight_decay: float = kwargs["weight_decay"]
-    optimizer: str = kwargs["optimizer"].lower()
+    adam: bool = kwargs["adam"]
+    SGD: bool = kwargs["SGD"]
 
     if model is None:
         nheads = config_files()["transfomerEncoderBlock"]["nheads"]
@@ -65,21 +66,21 @@ def helper(**kwargs):
             activation=activation,
             dimension=dimension,
             num_encoder_layers=num_encoder_layers,
-            dimension_feedforward=dimension_feedforward,
+            dim_feedforward=dimension_feedforward,
             layer_norm_eps=layer_norm_eps,
         )
 
     else:
         classifier = model
 
-    if optimizer == "adam":
+    if adam:
         optimizer = optim.Adam(
             params=classifier.parameters(),
             lr=lr,
             betas=(beta1, beta2),
             weight_decay=weight_decay,
         )
-    elif optimizer == "sgd":
+    elif SGD:
         optimizer = optim.SGD(params=classifier.parameters(), lr=lr, momentum=momentum)
     else:
         raise ValueError("Optimizer not supported".capitalize())
@@ -102,4 +103,16 @@ def helper(**kwargs):
 
 
 if __name__ == "__main__":
-    pass
+    init = helper(
+        model = None,
+        lr = float(config_files()["trainer"]["lr"]),
+        beta1 = config_files()["trainer"]["beta1"],
+        beta2 = config_files()["trainer"]["beta2"],
+        momentum = config_files()["trainer"]["momentum"],
+        weight_decay = float(config_files()["trainer"]["weight_decay"]),
+        adam = config_files()["trainer"]["adam"],
+        SGD = config_files()["trainer"]["SGD"],
+    )
+
+    assert init["model"].__class__ == MultiModalClassifier
+    assert init["optimizer"].__class__ == optim.Adam
