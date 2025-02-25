@@ -141,6 +141,11 @@ class Trainer:
             print(f"Unexpected Error in Trainer Initialization: {e}")
             sys.exit(1)
 
+        self.train_models = config_files()["artifacts"]["train_models"]
+        self.best_model = config_files()["artifacts"]["best_mode"]
+
+        self.loss = float("inf")
+
     def l1_regularizer(self, model):
         if isinstance(model, MultiModalClassifier):
             return self.l1_lambda * sum(
@@ -157,8 +162,22 @@ class Trainer:
         else:
             raise ValueError("Model must be an instance of MultiModalClassifier")
 
-    def saved_checkpoints(self):
-        pass
+    def saved_checkpoints(self, train_loss: float, epoch: int):
+        if self.loss > train_loss:
+            self.loss = train_loss
+            torch.save(
+                {
+                    "model": self.model.state_dict(),
+                    "optimizer": self.optimizer.state_dict(),
+                    "train_loss": self.loss,
+                    "epoch": epoch,
+                },
+                os.path.join(self.best_model, "best_model.pth"),
+            )
+        torch.save(
+            self.model.state_dict(),
+            os.path.join(self.train_models, "model{}.pth".format(epoch)),
+        )
 
     def update_train(self, **kwargs):
         predicted = kwargs["predicted"].float()
