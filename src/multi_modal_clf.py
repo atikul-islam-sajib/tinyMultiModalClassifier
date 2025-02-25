@@ -20,15 +20,24 @@ class Classifier(nn.Module):
         self.layers = list()
 
         for idx in range(3):
-            if idx !=2:
-                self.layers.append(nn.Linear(in_features = self.in_features, out_features = self.out_features))
-                self.layers.append(nn.ReLU())
-                self.layers.append(nn.BatchNorm1d(num_features = self.out_features))
+            if idx != 2:
+                self.layers.append(
+                    nn.Linear(
+                        in_features=self.in_features, out_features=self.out_features
+                    )
+                )
+                self.layers.append(nn.ReLU(inplace=True))
+                self.layers.append(nn.BatchNorm1d(num_features=self.out_features))
 
                 self.in_features = self.out_features
                 self.out_features = self.in_features // 2
             else:
-                self.layers.append(nn.Linear(in_features = self.in_features, out_features = self.in_features//self.in_features))
+                self.layers.append(
+                    nn.Linear(
+                        in_features=self.in_features,
+                        out_features=self.in_features // self.in_features,
+                    )
+                )
 
         self.classifier = nn.Sequential(*self.layers)
 
@@ -37,14 +46,13 @@ class Classifier(nn.Module):
             return self.classifier(x).view(-1)
         else:
             raise ValueError("Input must be a torch.Tensor.".capitalize())
-        
+
     @staticmethod
     def total_params(model):
         if isinstance(model, Classifier):
             return sum(params.numel() for params in model.parameters())
         else:
             raise ValueError("Input must be a Classifier model.".capitalize())
-        
 
 
 class MultiModalClassifier(nn.Module):
@@ -73,10 +81,6 @@ class MultiModalClassifier(nn.Module):
         self.dropout = dropout
         self.layer_norm_eps = layer_norm_eps
         self.activation = activation
-
-        self.in_features = self.dimension * 2
-
-        self.classifier_layers = list()
 
         self.vision_transformer = VisionTransformer(
             channels=channels,
@@ -108,25 +112,25 @@ class MultiModalClassifier(nn.Module):
             image_features = self.vision_transformer(image)
             text_features = self.text_transformer(text)
 
-            image_features = torch.mean(input = image_features, dim = 1)
-            text_features = torch.mean(input = text_features, dim = 1)
+            image_features = torch.mean(input=image_features, dim=1)
+            text_features = torch.mean(input=text_features, dim=1)
             fusion = torch.cat((image_features, text_features), dim=1)
             classifier = self.classifier(fusion)
 
-            # return {"image_features": image_features, "text_features": text_features}
             return classifier
         else:
             raise ValueError("Both inputs must be torch.Tensor.".capitalize())
 
 
 if __name__ == "__main__":
-    image_channels = config_files()["patchEmbeddings"]["channels"]
+    nheads = config_files()["transfomerEncoderBlock"]["nheads"]
+    dropout = config_files()["transfomerEncoderBlock"]["dropout"]
+    batch_size = config_files()["dataloader"]["batch_size"]
     image_size = config_files()["patchEmbeddings"]["image_size"]
     patch_size = config_files()["patchEmbeddings"]["patch_size"]
-    dimension = config_files()["patchEmbeddings"]["dimension"]
-    nheads = config_files()["transfomerEncoderBlock"]["nheads"]
     activation = config_files()["transfomerEncoderBlock"]["activation"]
-    dropout = config_files()["transfomerEncoderBlock"]["dropout"]
+    dimension = config_files()["patchEmbeddings"]["dimension"]
+    image_channels = config_files()["patchEmbeddings"]["channels"]
     num_encoder_layers = config_files()["transfomerEncoderBlock"]["num_encoder_layers"]
     dimension_feedforward = config_files()["transfomerEncoderBlock"][
         "dimension_feedforward"
@@ -205,8 +209,10 @@ if __name__ == "__main__":
     number_of_patches = (args.image_size // args.patch_size) ** 2
     number_of_sequences = (args.image_size // args.patch_size) ** 2
 
-    images = torch.randn(4, args.image_channels, args.image_size, args.image_size)
-    texts = torch.randint(0, number_of_sequences, (4, number_of_sequences))
+    images = torch.randn(
+        batch_size, args.image_channels, args.image_size, args.image_size
+    )
+    texts = torch.randint(0, number_of_sequences, (batch_size, number_of_sequences))
 
     classifier = MultiModalClassifier(
         channels=args.image_channels,
@@ -221,11 +227,10 @@ if __name__ == "__main__":
         activation=args.activation,
     )
     output = classifier(image=images, text=texts)
-    print(output.size())
-    # print(output["image_features"].size(), output["text_features"].size())
-    # assert (
-    #     output["text_features"].size() == output["image_features"].size()
-    # ), "MultiModalClassifier class is not working properly".capitalize()
+    assert output.unsqueeze(-1).size() == (
+        batch_size,
+        batch_size // batch_size,
+    ), "Multi Modal Classifier output size mismatch".capitalize()
 
     """
     ################################
