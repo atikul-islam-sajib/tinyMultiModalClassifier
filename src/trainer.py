@@ -1,6 +1,7 @@
 import os
 import sys
 import torch
+import argparse
 from tqdm import tqdm
 import torch.nn as nn
 import torch.optim as optim
@@ -160,9 +161,9 @@ class Trainer:
 if __name__ == "__main__":
     model = config_files()["trainer"]["model"]
     epochs = config_files()["trainer"]["epochs"]
-    lr = config_files()["trainer"]["lr"]
-    beta1 = config_files()["trainer"]["beta1"]
-    beta2 = config_files()["trainer"]["beta2"]
+    lr = float(config_files()["trainer"]["lr"])
+    beta1 = float(config_files()["trainer"]["beta1"])
+    beta2 = float(config_files()["trainer"]["beta2"])
     momentum = config_files()["trainer"]["momentum"]
     step_size = config_files()["trainer"]["step_size"]
     gamma = config_files()["trainer"]["gamma"]
@@ -177,23 +178,76 @@ if __name__ == "__main__":
     verbose = config_files()["trainer"]["verbose"]
     mlflow = config_files()["trainer"]["mlflow"]
 
+    parser = argparse.ArgumentParser(description="Train the Multimodal Model".title())
+    parser.add_argument("--model", type=str, default=model, help="Model to train")
+    parser.add_argument(
+        "--epochs", type=int, default=epochs, help="Number of epochs to train"
+    )
+    parser.add_argument("--lr", type=float, default=lr, help="Learning rate")
+    parser.add_argument("--beta1", type=float, default=beta1, help="Adam beta1")
+    parser.add_argument("--beta2", type=float, default=beta2, help="Adam beta2")
+    parser.add_argument("--momentum", type=float, default=momentum, help="SGD momentum")
+    parser.add_argument(
+        "--step_size", type=int, default=step_size, help="Step size for lr scheduler"
+    )
+    parser.add_argument(
+        "--gamma", type=float, default=gamma, help="Gamma for lr scheduler"
+    )
+    parser.add_argument(
+        "--l1_lambda", type=float, default=l1_lambda, help="L1 regularization lambda"
+    )
+    parser.add_argument(
+        "--l2_lambda", type=float, default=l2_lambda, help="L2 regularization lambda"
+    )
+    parser.add_argument(
+        "--l1_regularization",
+        type=float,
+        default=l1_regularization,
+        help="L1 regularization",
+    )
+    parser.add_argument(
+        "--l2_regularization",
+        type=float,
+        default=l2_regularization,
+        help="L2 regularization",
+    )
+    parser.add_argument(
+        "--lr_scheduler",
+        type=bool,
+        default=lr_scheduler,
+        help="Use learning rate scheduler",
+    )
+    parser.add_argument(
+        "--verbose", type=bool, default=verbose, help="Display progress"
+    )
+    parser.add_argument(
+        "--mlflow", type=bool, default=mlflow, help="Enable MLflow tracking"
+    )
+    parser.add_argument(
+        "--device", type=str, default=device, help="Device to use (cpu or cuda)"
+    )
+    parser.add_argument("--adam", type=bool, default=adam, help="Use Adam optimizer")
+    parser.add_argument("--SGD", type=bool, default=SGD, help="Use SGD optimizer")
+
+    args = parser.parse_args()
+
     trainer = Trainer(
         model=None,
-        epochs=epochs,
-        lr=lr,
-        beta1=beta1,
-        beta2=beta2,
-        momentum=momentum,
-        step_size=step_size,
-        gamma=gamma,
-        l1_lambda=l1_lambda,
-        l2_lambda=l2_lambda,
-        device=device,
-        adam=adam,
-        SGD=SGD,
-        l1_regularization=l1_regularization,
-        l2_regularization=l2_regularization,
-        lr_scheduler=lr_scheduler,
-        verbose=verbose,
-        mlflow=mlflow,
+        epochs=args.epochs,
+        lr=args.lr,
+        beta1=args.beta1,
+        beta2=args.beta2,
+        momentum=args.momentum,
+        step_size=args.step_size,
+        gamma=args.gamma,
+        l1_lambda=args.l1_lambda,
+        l2_lambda=args.l2_lambda,
+        device=args.device,
+        adam=args.adam,
+        SGD=args.SGD,
+        l1_regularization=args.l1_regularization,
+        l2_regularization=args.l2_regularization,
+        lr_scheduler=args.lr_scheduler,
+        verbose=args.verbose,
+        mlflow=args.mlflow,
     )

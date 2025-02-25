@@ -20,7 +20,7 @@ transfomerEncoderBlock:
     nheads: 8
     activation: "relu"
     dropout: 0.1
-    num_encoder_layers: 6
+    num_encoder_layers: 1
     dimension_feedforward: 1024
     layer_norm_eps: 1e-5
 
