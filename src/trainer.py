@@ -7,6 +7,7 @@ from tqdm import tqdm
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import accuracy_score
+from torch.optim.lr_scheduler import StepLR
 
 sys.path.append("./src/")
 
@@ -134,6 +135,11 @@ class Trainer:
                 print(e)
                 sys.exit(1)
 
+            if self.lr_scheduler:
+                self.scheduler = StepLR(
+                    optimizer=self.optimizer, step_size=self.step_size, gamma=self.gamma
+                )
+
             self.model = self.model.to(self.device)
             self.criterion = self.criterion.to(self.device)
 
@@ -259,6 +265,9 @@ class Trainer:
                 labels = labels.detach().cpu().numpy()
 
                 valid_accuracy.append(accuracy_score(predicted, labels))
+
+            if self.lr_scheduler:
+                self.scheduler.step()
 
             try:
                 self.display_progress(
