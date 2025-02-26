@@ -4,6 +4,7 @@ import argparse
 
 sys.path.append("./src/")
 
+from tester import Tester
 from trainer import Trainer
 from dataloader import Loader
 from utils import config_files
@@ -42,6 +43,9 @@ def cli():
     lr_scheduler = config_files()["trainer"]["lr_scheduler"]
     verbose = config_files()["trainer"]["verbose"]
     mlflow = config_files()["trainer"]["mlflow"]
+    model = config_files()["tester"]["model"]
+    plot_images = config_files()["tester"]["plot_images"]
+
     parser = argparse.ArgumentParser(
         description="Multi-Modal Classifier Training and Testing CLI".title()
     )
@@ -176,6 +180,15 @@ def cli():
     )
     parser.add_argument("--adam", type=bool, default=adam, help="Use Adam optimizer")
     parser.add_argument("--SGD", type=bool, default=SGD, help="Use SGD optimizer")
+    parser.add_argument(
+        "--model",
+        type=str,
+        default=model,
+        help="Choose model to evaluate (best or path)",
+    )
+    parser.add_argument(
+        "--plot_images", type=bool, default=False, help="Display predicted images"
+    )
 
     args = parser.parse_args()
 
@@ -219,7 +232,17 @@ def cli():
         Trainer.display_history()
 
     elif args.test:
-        pass
+        try:
+            tester = Tester(
+                model=args.model, device=args.device, plot_images=args.plot_images
+            )
+            tester.model_eval(display_image=True)
+        except Exception as e:
+            print(f"[FATAL] Tester encountered a critical error: {e}")
+            sys.exit(1)
+        else:
+            print("[INFO] MultiModalClassifier evaluation completed successfully. "
+                "All files related to the test are stored in the metrics folder.")
         
         
 
