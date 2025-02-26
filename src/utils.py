@@ -2,17 +2,25 @@ import os
 import re
 import sys
 import yaml
+import math
 import nltk
 import torch
 import joblib
 import warnings
+import pandas as pd
 import torch.nn as nn
 from tqdm import tqdm
+from textwrap import fill
+import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
 
 nltk.download("stopwords")
 
-sys.path.append("/src/")
+sys.path.append("/src/")from textwrap import fill
+import matplotlib.pyplot as plt
+from torchvision import transforms
+from torch.utils.data import DataLoader
+from multi_modal_clf import MultiModalClassifier
 
 stop_words = set(stopwords.words("english"))
 
@@ -105,3 +113,52 @@ def create_sequences(instance, vocabulary: int = 4096, sequence_length: int = 19
     assert (
         len(sequence) == sequence_length
     ), f"Error: Sequence length is {len(sequence)} instead of {sequence_length}"
+
+
+def plot_images(predicted: bool = False, device: str = "cuda", model: MultiModalClassifier=None, epoch: int = 1):
+    processed_path = config_files()["artifacts"]["processed_data_path"]
+    train_images_path = config_files()["artifacts"]["train_images"]
+    try:
+        train_dataloader = load_file(filename=os.path.join(processed_path,"train_dataloader.pkl"))
+        vocabularies = pd.read_csv(os.path.join(processed_path, "vocabulary.csv"))
+        vocabularies["index"] = vocabularies["index"].astype(int)
+
+        images, texts, labels = next(iter(train_dataloader))
+
+        predict = model(images.to(device))
+        predict = torch.where(predict > 0.5, 1, 0)
+        predict = predict.detach().cpu().numpy()
+
+        num_images = images.size(0)
+        num_rows = int(math.sqrt(num_images))
+        num_cols = math.ceil(num_images / num_rows)
+
+        _, axes = plt.subplots(num_rows, num_cols, figsize=(12, 8))
+        axes = axes.flatten()
+
+        for index, (image, ax) in enumerate(zip(images, axes)):
+            image = image.squeeze().permute(1, 2, 0).detach().cpu().numpy()
+            image = (image - image.min()) / (image.max() - image.min())
+            label = labels[index].item()
+            text_sequences = texts[index].detach().cpu().numpy().tolist()
+            words = vocabularies[vocabularies["index"].isin(text_sequences)][
+                "vocabulary"
+            ].tolist()
+            medical_report = " ".join(words).replace("<UNK>", "").strip()
+            wrapped_report = fill(medical_report, width=30)
+
+            if predicted:
+                title_text = f"Label: {label}\nPredicted: {predict}\nReport: {wrapped_report}"
+            else:
+                title_text = f"Label: {label}\nReport: {wrapped_report}"
+
+            ax.set_title(title_text, fontsize=9, loc="center")
+            ax.imshow(image)
+            ax.axis("off")
+
+        plt.tight_layout()
+        plt.savefig(os.path.join(train_images_path, "image{}.png".format(epoch)))
+        plt.show()
+
+    except Exception as e:
+        print(f"Error in display_images: {e}")
