@@ -41,6 +41,7 @@ class Loader:
         self.sequences = list()
 
         self.sequence_length = (self.image_size // self.patch_size) ** 2
+        self.maximum_images = 4
 
     def image_transform(self):
         return transforms.Compose(
@@ -225,6 +226,7 @@ class Loader:
         }
 
     def create_dataloader(self):
+        processed_path = config_files()["artifacts"]["processed_data_path"]
         try:
             dataset = self.extracted_image_and_text_features()
             images = dataset["images"]
@@ -269,16 +271,12 @@ class Loader:
                     ("test_dataloader.pkl", test_dataloader),
                 ]:
                     dump_file(
-                        value=value,
-                        filename=os.path.join(
-                            config_files()["artifacts"]["processed_data_path"],
-                            filename,
-                        ),
+                        value=value, filename=os.path.join(processed_path, filename)
                     )
 
                 print(
                     "Dataloaders created successfully in the folder {}".capitalize().format(
-                        config_files()["artifacts"]["processed_data_path"]
+                        processed_path
                     )
                 )
             except StopIteration:
@@ -294,17 +292,12 @@ class Loader:
 
     @staticmethod
     def details_dataset():
+        processed_path = config_files()["artifacts"]["processed_data_path"]
         train_dataloader = load_file(
-            filename=os.path.join(
-                config_files()["artifacts"]["processed_data_path"],
-                "train_dataloader.pkl",
-            )
+            filename=os.path.join(processed_path, "train_dataloader.pkl")
         )
         test_dataloader = load_file(
-            filename=os.path.join(
-                config_files()["artifacts"]["processed_data_path"],
-                "test_dataloader.pkl",
-            )
+            filename=os.path.join(processed_path, "test_dataloader.pkl")
         )
 
         train_images, _, train_labels = next(iter(train_dataloader))
@@ -325,44 +318,36 @@ class Loader:
                 "Text Type": str([test_sequences.dtype]),
                 "Labels": str([train_labels.unique()]),
             }
-        ).to_csv(
-            os.path.join(
-                config_files()["artifacts"]["processed_data_path"],
-                "dataset_details.csv",
-            )
-        )
+        ).to_csv(os.path.join(processed_path, "dataset_details.csv"))
         print(
             "Dataset details saved successfully in the folder {}".capitalize().format(
-                config_files()["artifacts"]["processed_data_path"]
+                processed_path
             )
         )
 
     @staticmethod
     def display_images():
+        files_path = config_files()["artifacts"]["files"]
+        processed_path = config_files()["artifacts"]["processed_data_path"]
         try:
             train_dataloader = load_file(
-                filename=os.path.join(
-                    config_files()["artifacts"]["processed_data_path"],
-                    "train_dataloader.pkl",
-                )
+                filename=os.path.join(processed_path, "train_dataloader.pkl")
             )
-            vocabularies = pd.read_csv(
-                os.path.join(
-                    config_files()["artifacts"]["processed_data_path"], "vocabulary.csv"
-                )
-            )
+            vocabularies = pd.read_csv(os.path.join(processed_path, "vocabulary.csv"))
             vocabularies["index"] = vocabularies["index"].astype(int)
 
             images, texts, labels = next(iter(train_dataloader))
 
-            num_images = images.size(0)
+            max_images = 4
+
+            num_images = images[:max_images].size(0)
             num_rows = int(math.sqrt(num_images))
             num_cols = math.ceil(num_images / num_rows)
 
             fig, axes = plt.subplots(num_rows, num_cols, figsize=(12, 8))
             axes = axes.flatten()
 
-            for index, (image, ax) in enumerate(zip(images, axes)):
+            for index, (image, ax) in enumerate(zip(images[:max_images], axes)):
                 image = image.squeeze().permute(1, 2, 0).detach().cpu().numpy()
                 image = (image - image.min()) / (image.max() - image.min())
                 label = labels[index].item()
@@ -380,12 +365,7 @@ class Loader:
                 ax.axis("off")
 
             plt.tight_layout()
-            plt.savefig(
-                os.path.join(
-                    config_files()["artifacts"]["files"],
-                    "images.png",
-                )
-            )
+            plt.savefig(os.path.join(files_path, "images.png"))
             plt.show()
 
         except Exception as e:

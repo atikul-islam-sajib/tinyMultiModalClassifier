@@ -130,15 +130,17 @@ def plot_images(
         predict = model(image=images.to(device), text=texts.to(device))
         predict = torch.where(predict > 0.5, 1, 0)
         predict = predict.detach().cpu().numpy()
+        
+        max_imgs = 4
 
-        num_images = images.size(0)
+        num_images = images[:max_imgs].size(0)
         num_rows = int(math.sqrt(num_images))
         num_cols = math.ceil(num_images / num_rows)
 
         _, axes = plt.subplots(num_rows, num_cols, figsize=(12, 8))
         axes = axes.flatten()
 
-        for index, (image, ax) in enumerate(zip(images, axes)):
+        for index, (image, ax) in enumerate(zip(images[:max_imgs], axes)):
             image = image.squeeze().permute(1, 2, 0).detach().cpu().numpy()
             image = (image - image.min()) / (image.max() - image.min())
             label = labels[index].item()
