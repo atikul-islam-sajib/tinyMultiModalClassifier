@@ -48,9 +48,9 @@ trainer:
     SGD: False
     mlflow: False
     verbose: False
-    device: "mps"
+    device: "cuda"
 
 tester:
     model: "best"
-    device: "mps"
+    device: "cuda"
     plot_images: True
