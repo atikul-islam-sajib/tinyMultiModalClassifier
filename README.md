@@ -39,7 +39,7 @@ The multi-modal classification model follows a structured pipeline:
     |    Text        | ----> | Transformer Encoder Block   | ----> | Extracted Features |
     +----------------+       +-----------------------------+       +--------------------+
                                       ||
-                                      ||
+                                      ||(Concatenation with extracted features(images and text))
                             +-----------------------------+
                             | Feature Concatenation       |
                             +-----------------------------+
@@ -54,21 +54,6 @@ The multi-modal classification model follows a structured pipeline:
                             |      Final Prediction       |
                             +-----------------------------+
 ```
-
----
-
-## **Visual Representation**
-
-### **Vision Transformer (ViT)**
-![Vision Transformer](https://raw.githubusercontent.com/google-research/vision_transformer/main/docs/vit.png)  
-*ViT splits the input image into fixed-size patches and processes them like a sequence.*
-
----
-
-### **Transformer Encoder Block**
-![Transformer Encoder](https://upload.wikimedia.org/wikipedia/commons/3/3f/Transformer_Encoder.png)  
-*A Transformer Encoder applies **self-attention** and **layer normalization** to process text embeddings.*
-
 ---
 
 ## **Key Features**
