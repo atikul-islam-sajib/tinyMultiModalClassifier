@@ -196,8 +196,8 @@ tester:
     model: "best"                # Load best trained model for testing
     device: "cuda"               # Device to run testing
     plot_images: True            # Enable visualization of predictions
-``` 
 
+``` 
 ## **Training and Testing Commands**  
 
 | **Mode**      | **Command** | **Description** | **Customizable Parameters** | **Example Usage** |
@@ -206,7 +206,6 @@ tester:
 | **Test**     | `python src/cli.py --test` | Loads the best model, evaluates on the test set, computes accuracy, precision, recall, F1-score, and generates a confusion matrix. | `--batch_size`: Batch size for testing.<br> `--device`: Specify testing device (`cuda`, `mps`, `cpu`). | `python src/cli.py --test --batch_size 32 --device cuda` |
 
 ```
-
 ```
 ## **Evaluation Metrics**  
 
@@ -217,8 +216,8 @@ tester:
 | **Recall**          | Measures completeness by identifying true positive cases.            | `90.1%`         |
 | **F1-Score**        | Harmonic mean of precision and recall.                               | `89.7%`         |
 | **Confusion Matrix** | Breakdown of correct vs incorrect classifications per class.        | `[[345, 12, 8], [10, 290, 15], [5, 18, 325]]` |
-```
 
+```
 ```
 ## **License**  
 This project is released under the **MIT License**. You can use, modify, and distribute it freely for research and educational purposes.  
