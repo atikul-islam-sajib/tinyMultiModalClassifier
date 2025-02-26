@@ -4,8 +4,9 @@ import argparse
 
 sys.path.append("./src/")
 
-from utils import config_files
+from trainer import Trainer
 from dataloader import Loader
+from utils import config_files
 
 
 def cli():
@@ -22,7 +23,24 @@ def cli():
         "dimension_feedforward"
     ]
     layer_norm_eps = float(config_files()["transfomerEncoderBlock"]["layer_norm_eps"])
-
+    model = config_files()["trainer"]["model"]
+    epochs = config_files()["trainer"]["epochs"]
+    lr = float(config_files()["trainer"]["lr"])
+    beta1 = float(config_files()["trainer"]["beta1"])
+    beta2 = float(config_files()["trainer"]["beta2"])
+    momentum = config_files()["trainer"]["momentum"]
+    step_size = config_files()["trainer"]["step_size"]
+    gamma = config_files()["trainer"]["gamma"]
+    l1_lambda = config_files()["trainer"]["l1_lambda"]
+    l2_lambda = config_files()["trainer"]["l2_lambda"]
+    device = config_files()["trainer"]["device"]
+    adam = config_files()["trainer"]["adam"]
+    SGD = config_files()["trainer"]["SGD"]
+    l1_regularization = config_files()["trainer"]["l1_regularization"]
+    l2_regularization = config_files()["trainer"]["l2_regularization"]
+    lr_scheduler = config_files()["trainer"]["lr_scheduler"]
+    verbose = config_files()["trainer"]["verbose"]
+    mlflow = config_files()["trainer"]["mlflow"]
     parser = argparse.ArgumentParser(
         description="Multi-Modal Classifier Training and Testing CLI".title()
     )
@@ -114,6 +132,55 @@ def cli():
         action="store_true",
         default="Test CLI for the Multi Modal Classifier".capitalize(),
     )
+    parser.add_argument("--model", type=str, default=model, help="Model to train")
+    parser.add_argument(
+        "--epochs", type=int, default=epochs, help="Number of epochs to train"
+    )
+    parser.add_argument("--lr", type=float, default=lr, help="Learning rate")
+    parser.add_argument("--beta1", type=float, default=beta1, help="Adam beta1")
+    parser.add_argument("--beta2", type=float, default=beta2, help="Adam beta2")
+    parser.add_argument("--momentum", type=float, default=momentum, help="SGD momentum")
+    parser.add_argument(
+        "--step_size", type=int, default=step_size, help="Step size for lr scheduler"
+    )
+    parser.add_argument(
+        "--gamma", type=float, default=gamma, help="Gamma for lr scheduler"
+    )
+    parser.add_argument(
+        "--l1_lambda", type=float, default=l1_lambda, help="L1 regularization lambda"
+    )
+    parser.add_argument(
+        "--l2_lambda", type=float, default=l2_lambda, help="L2 regularization lambda"
+    )
+    parser.add_argument(
+        "--l1_regularization",
+        type=float,
+        default=l1_regularization,
+        help="L1 regularization",
+    )
+    parser.add_argument(
+        "--l2_regularization",
+        type=float,
+        default=l2_regularization,
+        help="L2 regularization",
+    )
+    parser.add_argument(
+        "--lr_scheduler",
+        type=bool,
+        default=lr_scheduler,
+        help="Use learning rate scheduler",
+    )
+    parser.add_argument(
+        "--verbose", type=bool, default=verbose, help="Display progress"
+    )
+    parser.add_argument(
+        "--mlflow", type=bool, default=mlflow, help="Enable MLflow tracking"
+    )
+    parser.add_argument(
+        "--device", type=str, default=device, help="Device to use (cpu or cuda)"
+    )
+    parser.add_argument("--adam", type=bool, default=adam, help="Use Adam optimizer")
+    parser.add_argument("--SGD", type=bool, default=SGD, help="Use SGD optimizer")
 
     args = parser.parse_args()
 
@@ -124,11 +191,36 @@ def cli():
             batch_size=args.batch_size,
             split_size=args.split_size,
         )
+
+        trainer = Trainer(
+            model=None,
+            epochs=args.epochs,
+            lr=args.lr,
+            beta1=args.beta1,
+            beta2=args.beta2,
+            momentum=args.momentum,
+            step_size=args.step_size,
+            gamma=args.gamma,
+            l1_lambda=args.l1_lambda,
+            l2_lambda=args.l2_lambda,
+            device=args.device,
+            adam=args.adam,
+            SGD=args.SGD,
+            l1_regularization=args.l1_regularization,
+            l2_regularization=args.l2_regularization,
+            lr_scheduler=args.lr_scheduler,
+            verbose=args.verbose,
+            mlflow=args.mlflow,
+        )
+
         loader.unzip_image_dataset()
         loader.create_dataloader()
 
         Loader.display_images()
         Loader.details_dataset()
+
+        trainer.train()
+        Trainer.display_history()
         
         
 
