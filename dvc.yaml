@@ -1,0 +1,24 @@
+stages:
+  train:
+    cmd: python3 src/cli.py --train
+    deps:
+      - cli.py
+      - dataloader.py
+      - feed_forward_network.py
+      - layer_normalization.py
+      - loss_function.py
+      - multi_modal_clf.py
+      - multihead_attention_layer.py
+      - patch_embedding.py
+      - scaled_dot_product.py
+      - text_transformer.py
+      - trainer.py
+      - transformer_encoder_block.py
+      - transformer_encoder.py
+      - utils.py
+      - ViT.py
+    outs:
+      - ./artifacts/files/
+      - ./artifacts/checkpoints/
+      - ./artifacts/metrics/
+      - ./artifacts/outputs/

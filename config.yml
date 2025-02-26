@@ -31,7 +31,7 @@ dataloader:
     
 trainer:
     model: None
-    epochs: 100
+    epochs: 3
     lr: 2e-4
     weight_decay: 5e-3
     beta1: 0.9
