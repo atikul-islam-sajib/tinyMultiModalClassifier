@@ -205,8 +205,7 @@ tester:
 | **Train**    | `python src/cli.py --train` | Loads dataset, trains model, and saves checkpoints/logs. | `--epochs`: Number of training epochs.<br> `--lr`: Learning rate.<br> `--batch_size`: Batch size for training.<br> `--device`: Specify training device (`cuda`, `mps`, `cpu`). | `python src/cli.py --train --epochs 150 --lr 3e-4 --batch_size 16 --device cuda` |
 | **Test**     | `python src/cli.py --test` | Loads the best model, evaluates on the test set, computes accuracy, precision, recall, F1-score, and generates a confusion matrix. | `--batch_size`: Batch size for testing.<br> `--device`: Specify testing device (`cuda`, `mps`, `cpu`). | `python src/cli.py --test --batch_size 32 --device cuda` |
 
-```
-```
+
 ## **Evaluation Metrics**  
 
 | **Metric**            | **Description**                                                      | **Example Value** |
@@ -217,7 +216,5 @@ tester:
 | **F1-Score**        | Harmonic mean of precision and recall.                               | `89.7%`         |
 | **Confusion Matrix** | Breakdown of correct vs incorrect classifications per class.        | `[[345, 12, 8], [10, 290, 15], [5, 18, 325]]` |
 
-```
-```
 ## **License**  
 This project is released under the **MIT License**. You can use, modify, and distribute it freely for research and educational purposes.  
