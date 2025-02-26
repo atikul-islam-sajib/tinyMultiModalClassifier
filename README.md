@@ -27,6 +27,9 @@ The multi-modal classification model follows a structured pipeline:
 
 ---
 
+## Model Output Demo
+![tinyMultiModalClassifier](https://github.com/atikul-islam-sajib/tinyMultiModalClassifier/blob/main/artifacts/outputs/test_image/image1.png)
+
 ## **Model Architecture**
 
 ```plaintext
