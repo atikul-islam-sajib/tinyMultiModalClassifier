@@ -181,13 +181,13 @@ def cli():
     parser.add_argument("--adam", type=bool, default=adam, help="Use Adam optimizer")
     parser.add_argument("--SGD", type=bool, default=SGD, help="Use SGD optimizer")
     parser.add_argument(
-        "--model",
+        "--choose_model",
         type=str,
         default=model,
         help="Choose model to evaluate (best or path)",
     )
     parser.add_argument(
-        "--plot_images", type=bool, default=False, help="Display predicted images"
+        "--plot_images", type=bool, default=plot_images, help="Display predicted images"
     )
 
     args = parser.parse_args()
@@ -231,10 +231,10 @@ def cli():
         trainer.train()
         Trainer.display_history()
 
-    elif args.test:
+    else:
         try:
             tester = Tester(
-                model=args.model, device=args.device, plot_images=args.plot_images
+                model=args.choose_model, device=args.device, plot_images=args.plot_images
             )
             tester.model_eval(display_image=True)
         except Exception as e:
@@ -245,7 +245,5 @@ def cli():
                 "All files related to the test are stored in the metrics folder.")
         
         
-
-
 if __name__ == "__main__":
     cli()

@@ -13,7 +13,7 @@ artifacts:
 patchEmbeddings:
     channels: 3
     patch_size: 16
-    image_size: 128
+    image_size: 224
     dimension: 256
 
 transfomerEncoderBlock:
@@ -31,10 +31,10 @@ dataloader:
     
 trainer:
     model: None
-    epochs: 3
+    epochs: 100
     lr: 2e-4
-    weight_decay: 5e-3
-    beta1: 0.9
+    weight_decay: 2e-2
+    beta1: 0.5
     beta2: 0.999
     momentum: 0.95
     lr_scheduler: False

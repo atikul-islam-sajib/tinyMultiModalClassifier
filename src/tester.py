@@ -178,7 +178,7 @@ class Tester:
 if __name__ == "__main__":
     model = config_files()["tester"]["model"]
     device = config_files()["tester"]["device"]
-    plot_images = config_files()["tester"]["plot_images"]
+    display_images = config_files()["tester"]["plot_images"]
     parser = argparse.ArgumentParser(description="Test MultiModalClassifier".title())
     parser.add_argument(
         "--model",
@@ -190,12 +190,12 @@ if __name__ == "__main__":
         "--device", type=str, default=device, help="Choose device to use (cuda or cpu)"
     )
     parser.add_argument(
-        "--plot_images", type=bool, default=False, help="Display predicted images"
+        "--display_images", type=bool, default=display_images, help="Display predicted images"
     )
     args = parser.parse_args()
     try:
         tester = Tester(
-            model=args.model, device=args.device, plot_images=args.plot_images
+            model=args.model, device=args.device, plot_images=args.display_images
         )
         tester.model_eval(display_image=True)
     except Exception as e:

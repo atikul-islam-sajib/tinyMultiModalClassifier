@@ -12,10 +12,11 @@ from text_transformer import TextTransformerEncoder
 
 
 class Classifier(nn.Module):
-    def __init__(self, dimension: int = 256):
+    def __init__(self, dimension: int = 256, dropout: float = 0.1):
         super(Classifier, self).__init__()
         self.in_features = dimension * 2
         self.out_features = dimension // 2
+        self.dropout = dropout
 
         self.layers = list()
 
@@ -27,6 +28,7 @@ class Classifier(nn.Module):
                     )
                 ]
                 self.layers += [nn.ReLU(inplace=True)]
+                self.layers += [nn.Dropout(p=self.dropout)]
                 self.layers += [nn.BatchNorm1d(num_features=self.out_features)]
 
                 self.in_features = self.out_features
@@ -105,7 +107,7 @@ class MultiModalClassifier(nn.Module):
             activation=self.activation,
         )
 
-        self.classifier = Classifier(dimension=self.dimension)
+        self.classifier = Classifier(dimension=self.dimension, dropout=self.dropout)
 
     def forward(self, image: torch.Tensor, text: torch.Tensor):
         if isinstance(image, torch.Tensor) and isinstance(text, torch.Tensor):

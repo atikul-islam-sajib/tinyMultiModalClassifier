@@ -176,14 +176,14 @@ class Trainer:
         else:
             raise ValueError("Model must be an instance of MultiModalClassifier")
 
-    def saved_checkpoints(self, train_loss: float, epoch: int):
-        if self.loss > train_loss:
-            self.loss = train_loss
+    def saved_checkpoints(self, valid_loss: float, epoch: int):
+        if self.loss > valid_loss:
+            self.loss = valid_loss
             torch.save(
                 {
                     "model": self.model.state_dict(),
                     "optimizer": self.optimizer.state_dict(),
-                    "train_loss": self.loss,
+                    "valid_loss": self.loss,
                     "epoch": epoch,
                 },
                 os.path.join(self.best_model, "best_model.pth"),
@@ -291,14 +291,19 @@ class Trainer:
                 train_acc_mean = np.mean(train_accuracy)
                 valid_acc_mean = np.mean(valid_accuracy)
 
-                self.saved_checkpoints(train_loss=train_loss_mean, epoch=epoch + 1)
+                self.saved_checkpoints(valid_loss=valid_loss_mean, epoch=epoch + 1)
 
                 self.model_history["train_loss"].append(train_loss_mean)
                 self.model_history["train_accuracy"].append(train_acc_mean)
                 self.model_history["test_loss"].append(valid_loss_mean)
                 self.model_history["test_accuracy"].append(valid_acc_mean)
 
-                plot_images(predicted=True, device=self.device, model = self.model, epoch=epoch+1)
+                plot_images(
+                    predicted=True,
+                    device=self.device,
+                    model=self.model,
+                    epoch=epoch + 1,
+                )
 
             except KeyError as e:
                 print(f"[Error] Missing key in function arguments: {e}")
@@ -447,5 +452,5 @@ if __name__ == "__main__":
     )
 
     trainer.train()
-    
+
     Trainer.display_history()
