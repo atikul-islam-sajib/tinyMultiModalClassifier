@@ -4,7 +4,6 @@ import torch
 import argparse
 import numpy as np
 from tqdm import tqdm
-import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import accuracy_score
 from torch.optim.lr_scheduler import StepLR
@@ -14,9 +13,9 @@ sys.path.append("./src/")
 
 try:
     from helper import helper
-    from utils import config_files, device_init, dump_file, load_file, plot_images
     from loss_functon import LossFunction
     from multi_modal_clf import MultiModalClassifier
+    from utils import config_files, device_init, dump_file, load_file, plot_images
 except ImportError as e:
     print(f"Module Import Error: {e}")
     sys.exit(1)
@@ -448,4 +447,5 @@ if __name__ == "__main__":
     )
 
     trainer.train()
+    
     Trainer.display_history()
