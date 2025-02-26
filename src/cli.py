@@ -14,6 +14,7 @@ def cli():
     dropout = config_files()["transfomerEncoderBlock"]["dropout"]
     batch_size = config_files()["dataloader"]["batch_size"]
     image_size = config_files()["patchEmbeddings"]["image_size"]
+    split_size = config_files()["dataloader"]["split_size"]
     patch_size = config_files()["patchEmbeddings"]["patch_size"]
     activation = config_files()["transfomerEncoderBlock"]["activation"]
     dimension = config_files()["patchEmbeddings"]["dimension"]
@@ -47,26 +48,20 @@ def cli():
     parser.add_argument(
         "--channels",
         type=int,
-        default=config_files()["patchEmbeddings"]["channels"],
+        default=image_channels,
         help="Number of channels in the images",
     )
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=config_files()["dataloader"]["batch_size"],
+        default=batch_size,
         help="Batch size for the dataloader",
     )
     parser.add_argument(
         "--split_size",
         type=float,
-        default=config_files()["dataloader"]["split_size"],
+        default=split_size,
         help="Split size for the train and test datasets",
-    )
-    parser.add_argument(
-        "--image_channels",
-        type=int,
-        default=image_channels,
-        help="Image channels to transform".capitalize(),
     )
     parser.add_argument(
         "--image_size",
