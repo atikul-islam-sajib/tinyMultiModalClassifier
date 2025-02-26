@@ -133,7 +133,7 @@ pip install -r requirements.txt
 
 ---
 
-3.  **Configuration (`config.yml`)**  
+### **Configuration (`config.yml`)**  
 
 Modify `config.yml` to adjust model hyperparameters, dataset paths, and training options.  
 
