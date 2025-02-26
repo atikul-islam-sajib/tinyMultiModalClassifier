@@ -17,8 +17,8 @@ stages:
       - transformer_encoder.py
       - utils.py
       - ViT.py
-    outs:
-      - ./artifacts/files/
-      - ./artifacts/checkpoints/
-      - ./artifacts/metrics/
-      - ./artifacts/outputs/
+    # outs:
+    #   - ./artifacts/files/
+    #   - ./artifacts/checkpoints/
+    #   - ./artifacts/metrics/
+    #   - ./artifacts/outputs/

@@ -187,6 +187,10 @@ def cli():
             split_size=args.split_size,
         )
 
+
+        loader.unzip_image_dataset()
+        loader.create_dataloader()
+
         trainer = Trainer(
             model=None,
             epochs=args.epochs,
@@ -207,9 +211,6 @@ def cli():
             verbose=args.verbose,
             mlflow=args.mlflow,
         )
-
-        loader.unzip_image_dataset()
-        loader.create_dataloader()
 
         Loader.display_images()
         Loader.details_dataset()
