@@ -107,7 +107,7 @@ class MultiModalClassifier(nn.Module):
             activation=self.activation,
         )
 
-        self.classifier = Classifier(dimension=self.dimension, dropout=self.dropout)
+        self.classifier = Classifier(dimension=self.dimension, dropout=self.dropout * 2)
 
     def forward(self, image: torch.Tensor, text: torch.Tensor):
         if isinstance(image, torch.Tensor) and isinstance(text, torch.Tensor):
