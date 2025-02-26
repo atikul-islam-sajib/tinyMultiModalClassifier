@@ -286,7 +286,16 @@ class Trainer:
             except Exception as e:
                 print(f"[Unexpected Error] {e}")
 
-            self.saved_checkpoints(train_loss=np.mean(train_loss), epoch=epoch +1)
+            try:
+                self.saved_checkpoints(train_loss=np.mean(train_loss), epoch=epoch + 1)
+            except FileNotFoundError:
+                print("Error: Checkpoint directory not found. Ensure the save path exists.")
+            except PermissionError:
+                print("Error: Permission denied. Cannot write to the checkpoint directory.")
+            except TypeError as e:
+                print(f"Type Error in saved_checkpoints: {e}")
+            except Exception as e:
+                print(f"Unexpected Error in saving checkpoint: {e}")
 
 
 if __name__ == "__main__":
