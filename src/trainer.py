@@ -148,7 +148,7 @@ class Trainer:
             sys.exit(1)
 
         self.train_models = config_files()["artifacts"]["train_models"]
-        self.best_model = config_files()["artifacts"]["best_mode"]
+        self.best_model = config_files()["artifacts"]["best_model"]
 
         self.loss = float("inf")
 
@@ -285,6 +285,8 @@ class Trainer:
                 print(f"[Error] Invalid value encountered: {e}")
             except Exception as e:
                 print(f"[Unexpected Error] {e}")
+
+            self.saved_checkpoints(train_loss=np.mean(train_loss), epoch=epoch +1)
 
 
 if __name__ == "__main__":
