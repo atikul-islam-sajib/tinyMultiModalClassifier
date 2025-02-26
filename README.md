@@ -1,34 +1,81 @@
-# **TinyMultiModalClassifier**  
+## **Multi-Modal Classifier: Vision Transformer & Transformer Encoder Block**  
 
-A lightweight **multi-modal classifier** that integrates **Vision Transformer (ViT)** for image processing and a **Transformer Encoder Block** for text processing. The extracted features are concatenated and passed through a **classifier** for final classification.
+This repository provides a **lightweight multi-modal classification model** that seamlessly integrates **Vision Transformer (ViT)** for image feature extraction and a **Transformer Encoder Block** for text processing. By leveraging **self-attention mechanisms**, this model efficiently captures both spatial relationships in images and sequential dependencies in text.  
+
+The extracted features from both modalities are **concatenated** and passed through a **fully connected classifier** to generate the final prediction. This architecture is designed to handle **multi-modal data** efficiently and can be used for tasks such as **image-text classification, multi-modal sentiment analysis, and document classification**.
 
 ---
 
-## **Model Architecture**  
+## **How It Works**  
 
+The multi-modal classification model follows a structured pipeline:
+
+1. **Image Feature Extraction (ViT)**  
+   - The **Vision Transformer (ViT)** is used to process images by dividing them into patches.
+   - Each patch is **linearly embedded**, followed by **positional encoding**.
+   - The sequence of patches is then passed through **self-attention layers** to extract meaningful features.
+
+2. **Text Feature Extraction (Transformer Encoder Block)**  
+   - The input text is tokenized and converted into embeddings.
+   - A **Transformer Encoder Block** applies self-attention and layer normalization.
+   - The processed text embeddings capture the semantic relationships between words.
+
+3. **Feature Fusion & Classification**  
+   - The **image and text features** are concatenated.
+   - The concatenated representation is passed through a **classifier**.
+   - The model outputs the **final class prediction**.
+
+---
+
+## **Model Architecture**
+
+```plaintext
+    +----------------+       +-----------------------------+       +--------------------+
+    |    Image       | ----> | Vision Transformer (ViT)    | ----> | Extracted Features |
+    +----------------+       +-----------------------------+       +--------------------+
+                                      ||
+                                      ||
+    +----------------+       +-----------------------------+       +--------------------+
+    |    Text        | ----> | Transformer Encoder Block   | ----> | Extracted Features |
+    +----------------+       +-----------------------------+       +--------------------+
+                                      ||
+                                      ||
+                            +-----------------------------+
+                            | Feature Concatenation       |
+                            +-----------------------------+
+                                      ||
+                                      ||
+                            +-----------------------------+
+                            | Fully Connected Classifier  |
+                            +-----------------------------+
+                                      ||
+                                      ||
+                            +-----------------------------+
+                            |      Final Prediction       |
+                            +-----------------------------+
 ```
-+--------------------+       +-------------------------+       +---------------------+
-|   Input Image     | ----> |     Vision Transformer  | ----> |                     |
-|   (RGB Image)     |       |     (ViT Backbone)      |       |                     |
-+--------------------+       +-------------------------+       |                     |
-                                                               |   Concatenation     |
-+--------------------+       +-------------------------+       |      Layer         |
-|   Input Text      | ----> |  Transformer Encoder    | ----> |                     |
-|   (Tokenized)     |       |  (Text Feature Extractor)|       |                     |
-+--------------------+       +-------------------------+       +---------------------+
-                                                               |
-                                                               v
-                                                   +----------------------+
-                                                   |   Classifier Layer    |
-                                                   |  (Fully Connected)    |
-                                                   +----------------------+
-                                                               |
-                                                               v
-                                                   +----------------------+
-                                                   |      Prediction       |
-                                                   |    (Class Labels)     |
-                                                   +----------------------+
-```
+
+---
+
+## **Visual Representation**
+
+### **Vision Transformer (ViT)**
+![Vision Transformer](https://raw.githubusercontent.com/google-research/vision_transformer/main/docs/vit.png)  
+*ViT splits the input image into fixed-size patches and processes them like a sequence.*
+
+---
+
+### **Transformer Encoder Block**
+![Transformer Encoder](https://upload.wikimedia.org/wikipedia/commons/3/3f/Transformer_Encoder.png)  
+*A Transformer Encoder applies **self-attention** and **layer normalization** to process text embeddings.*
+
+---
+
+## **Key Features**
+✔ **Multi-Modal Learning** – Combines image and text features for robust classification.  
+✔ **Self-Attention Mechanism** – Captures spatial dependencies in images and semantic relationships in text.  
+✔ **Feature Fusion** – Effectively merges different modalities to enhance accuracy.  
+✔ **Scalability** – Can be extended to handle more modalities (e.g., audio, video).  
 
 ---
 
@@ -152,6 +199,7 @@ tester:
 
 ```
 ---
+```
 
 ## **Evaluation Metrics**  
 
@@ -162,6 +210,8 @@ tester:
 | **Recall**          | Measures completeness by identifying true positive cases.            | `90.1%`         |
 | **F1-Score**        | Harmonic mean of precision and recall.                               | `89.7%`         |
 | **Confusion Matrix** | Breakdown of correct vs incorrect classifications per class.        | `[[345, 12, 8], [10, 290, 15], [5, 18, 325]]` |
+```
+---
 
 ## **Contributing**  
 
