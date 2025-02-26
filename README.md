@@ -141,73 +141,27 @@ tester:
     device: "cuda"               # Device to run testing
     plot_images: True            # Enable visualization of predictions
 ``` 
-
 ---
 
-## **Training the Model**  
+## **Training and Testing Commands**  
 
-To start training, run:  
-```bash
-python src/cli.py --train
+| **Mode**      | **Command** | **Description** | **Customizable Parameters** | **Example Usage** |
+|--------------|------------|----------------|-----------------------------|-------------------|
+| **Train**    | `python src/cli.py --train` | Loads dataset, trains model, and saves checkpoints/logs. | `--epochs`: Number of training epochs.<br> `--lr`: Learning rate.<br> `--batch_size`: Batch size for training.<br> `--device`: Specify training device (`cuda`, `mps`, `cpu`). | `python src/cli.py --train --epochs 150 --lr 3e-4 --batch_size 16 --device cuda` |
+| **Test**     | `python src/cli.py --test` | Loads the best model, evaluates on the test set, computes accuracy, precision, recall, F1-score, and generates a confusion matrix. | `--batch_size`: Batch size for testing.<br> `--device`: Specify testing device (`cuda`, `mps`, `cpu`). | `python src/cli.py --test --batch_size 32 --device cuda` |
+
 ```
-
-This will:  
-✔️ Load the dataset  
-✔️ Train the model  
-✔️ Save checkpoints and logs  
-
-### **Command Breakdown**
-- `--train`: Enables training mode.  
-- Reads hyperparameters from `config.yml`.  
-- Saves model checkpoints to `artifacts/checkpoints/`.  
-- Logs accuracy, loss, and confusion matrix.  
-
----
-
-## **Testing the Model**  
-
-To evaluate the model on the test set, run:  
-```bash
-python src/cli.py --test
-```
-
-This will:  
-✔️ Compute **Accuracy, Precision, Recall, F1-Score**  
-✔️ Generate a **Confusion Matrix**  
-✔️ Save the results  
-
-### **Command Breakdown**
-- `--test`: Enables testing mode.  
-- Loads the **best trained model** from `artifacts/checkpoints/best_model/`.  
-- Runs inference on the test dataset.  
-- Saves performance metrics in `artifacts/metrics/`.  
-
 ---
 
 ## **Evaluation Metrics**  
 
-- **Accuracy** - Measures overall correctness of the model.  
-- **Precision** - Fraction of relevant instances among the retrieved instances.  
-- **Recall** - Measures completeness by identifying true positive cases.  
-- **F1-Score** - Harmonic mean of precision and recall.  
-- **Confusion Matrix** - Provides a breakdown of correct vs incorrect classifications.  
-
-### **Example Evaluation Output**  
-```json
-{
-    "Accuracy": 92.5,
-    "Precision": 89.3,
-    "Recall": 90.1,
-    "F1-Score": 89.7,
-    "Confusion Matrix": [
-        [345, 12, 8],
-        [10, 290, 15],
-        [5, 18, 325]
-    ]
-}
-```
-
----
+| **Metric**            | **Description**                                                      | **Example Value** |
+|----------------------|----------------------------------------------------------------------|------------------|
+| **Accuracy**        | Measures overall correctness of the model.                           | `92.5%`         |
+| **Precision**       | Fraction of relevant instances among the retrieved instances.        | `89.3%`         |
+| **Recall**          | Measures completeness by identifying true positive cases.            | `90.1%`         |
+| **F1-Score**        | Harmonic mean of precision and recall.                               | `89.7%`         |
+| **Confusion Matrix** | Breakdown of correct vs incorrect classifications per class.        | `[[345, 12, 8], [10, 290, 15], [5, 18, 325]]` |
 
 ## **Contributing**  
 
