@@ -221,13 +221,9 @@ tester:
 | **Confusion Matrix** | Breakdown of correct vs incorrect classifications per class.        | `[[345, 12, 8], [10, 290, 15], [5, 18, 325]]` |
 ```
 ---
-
-## **Contributing**  
-
-Contributions are welcome! Feel free to submit **pull requests** or open **issues** to improve the project.  
-
----
-
+```
 ## **License**  
 
 This project is released under the **MIT License**. You can use, modify, and distribute it freely for research and educational purposes.  
+```
+---
