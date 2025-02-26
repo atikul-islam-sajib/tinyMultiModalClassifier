@@ -95,19 +95,43 @@ tinyMultiModalClassifier/
 ├── README.md                  # Documentation
 ```
 
-## **Installation**  
 
-1. **Clone the Repository**  
-   ```bash
-   git clone https://github.com/atikul-islam-sajib/tinyMultiModalClassifier.git
-   cd tinyMultiModalClassifier
-   ```
+## **Getting Started: Setup & Installation**
 
-2. **Install Dependencies**  
-   ```bash
-   pip install -r requirements.txt
-   ```
+To begin using the **Multi-Modal Classifier**, follow these steps to clone the repository and install all necessary dependencies.
 
+### **1️⃣ Clone the Repository**
+The first step is to download the repository from GitHub. This will give you access to all the source code, configurations, and necessary scripts.
+
+```bash
+git clone https://github.com/atikul-islam-sajib/tinyMultiModalClassifier.git
+cd tinyMultiModalClassifier
+```
+
+**Explanation:**
+- `git clone <repo_url>` → Clones (downloads) the entire project from GitHub to your local machine.  
+- `cd tinyMultiModalClassifier` → Navigates into the downloaded project directory.  
+
+Now, you have all the files needed to run the project! 🚀
+
+---
+
+### **2️⃣ Install Dependencies**
+Before running the model, you need to install the required Python libraries. These dependencies include **PyTorch, Transformers, NumPy, and other essential packages**.
+
+```bash
+pip install -r requirements.txt
+```
+
+**Explanation:**
+- `pip install -r requirements.txt` → Reads the `requirements.txt` file and installs all the necessary dependencies automatically.  
+- Ensures that all required libraries are installed in your Python environment, avoiding compatibility issues.  
+
+💡 **Note:**  
+- Ensure you have **Python 3.10+** installed.  
+- It is recommended to use a **virtual environment (venv or conda)** to avoid conflicts with existing packages.  
+
+---
 
 3.  **Configuration (`config.yml`)**  
 
