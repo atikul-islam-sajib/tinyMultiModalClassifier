@@ -14,7 +14,7 @@ sys.path.append("./src/")
 
 try:
     from helper import helper
-    from utils import config_files, device_init, dump_file, load_file
+    from utils import config_files, device_init, dump_file, load_file, plot_images
     from loss_functon import LossFunction
     from multi_modal_clf import MultiModalClassifier
 except ImportError as e:
@@ -298,6 +298,8 @@ class Trainer:
                 self.model_history["train_accuracy"].append(train_acc_mean)
                 self.model_history["test_loss"].append(valid_loss_mean)
                 self.model_history["test_accuracy"].append(valid_acc_mean)
+
+                plot_images(predicted=True, device=self.device, model = self.model, epoch=epoch+1)
 
             except KeyError as e:
                 print(f"[Error] Missing key in function arguments: {e}")
