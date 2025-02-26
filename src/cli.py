@@ -124,12 +124,14 @@ def cli():
     parser.add_argument(
         "--train",
         action="store_true",
-        default="Train CLI for the Multi Modal Classifier".capitalize(),
+        default=False,
+        help="Train CLI for the Multi Modal Classifier".capitalize(),
     )
     parser.add_argument(
         "--test",
         action="store_true",
-        default="Test CLI for the Multi Modal Classifier".capitalize(),
+        default=False,
+        help="Test CLI for the Multi Modal Classifier".capitalize(),
     )
     parser.add_argument("--model", type=str, default=model, help="Model to train")
     parser.add_argument(
@@ -200,7 +202,6 @@ def cli():
             split_size=args.split_size,
         )
 
-
         loader.unzip_image_dataset()
         loader.create_dataloader()
 
@@ -234,16 +235,20 @@ def cli():
     else:
         try:
             tester = Tester(
-                model=args.choose_model, device=args.device, plot_images=args.plot_images
+                model=args.choose_model,
+                device=args.device,
+                plot_images=args.plot_images,
             )
             tester.model_eval(display_image=True)
         except Exception as e:
             print(f"[FATAL] Tester encountered a critical error: {e}")
             sys.exit(1)
         else:
-            print("[INFO] MultiModalClassifier evaluation completed successfully. "
-                "All files related to the test are stored in the metrics folder.")
-        
-        
+            print(
+                "[INFO] MultiModalClassifier evaluation completed successfully. "
+                "All files related to the test are stored in the metrics folder."
+            )
+
+
 if __name__ == "__main__":
     cli()

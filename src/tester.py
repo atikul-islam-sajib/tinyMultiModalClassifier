@@ -100,7 +100,7 @@ class Tester:
             print(f"[ERROR] Model initialization failed: {e}")
             sys.exit(1)
 
-    def model_eval(self, display_image: bool = False):
+    def model_eval(self):
         try:
             processed_data = config_files()["artifacts"]["processed_data_path"]
             validation_data = os.path.join(processed_data, "test_dataloader.pkl")
@@ -134,7 +134,7 @@ class Tester:
                     print(f"[WARNING] Skipping batch {index} due to error: {e}")
                     continue
 
-            if display_image:
+            if self.plot_images:
                 try:
                     plot_images(
                         predicted=True,
@@ -190,19 +190,22 @@ if __name__ == "__main__":
         "--device", type=str, default=device, help="Choose device to use (cuda or cpu)"
     )
     parser.add_argument(
-        "--display_images", type=bool, default=display_images, help="Display predicted images"
+        "--display_images",
+        type=bool,
+        default=display_images,
+        help="Display predicted images",
     )
     args = parser.parse_args()
     try:
         tester = Tester(
             model=args.model, device=args.device, plot_images=args.display_images
         )
-        tester.model_eval(display_image=True)
+        tester.model_eval()
     except Exception as e:
         print(f"[FATAL] Tester encountered a critical error: {e}")
         sys.exit(1)
     else:
-        print("[INFO] MultiModalClassifier evaluation completed successfully. "
-            "All files related to the test are stored in the metrics folder.")
-
-    
+        print(
+            "[INFO] MultiModalClassifier evaluation completed successfully. "
+            "All files related to the test are stored in the metrics folder."
+        )

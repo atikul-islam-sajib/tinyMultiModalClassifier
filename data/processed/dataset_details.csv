@@ -1,3 +1,0 @@
-,Dataset,Size,Number of Batches,Image Size,Sequence Size,Label Size,Label Type,Text Type,Labels
-0,Train,455,8,"[torch.Size([64, 3, 224, 224])]","[torch.Size([64, 196])]",[torch.Size([64])],[torch.int64],[torch.int64],"[tensor([0, 1])]"
-1,Test,194,4,"[torch.Size([64, 3, 224, 224])]","[torch.Size([64, 196])]",[torch.Size([64])],[torch.int64],[torch.int64],"[tensor([0, 1])]"

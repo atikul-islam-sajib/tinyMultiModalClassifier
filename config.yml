@@ -18,23 +18,23 @@ patchEmbeddings:
 
 transfomerEncoderBlock:
     nheads: 8
-    activation: "relu"
+    activation: "leaky"
     dropout: 0.1
-    num_encoder_layers: 1
-    dimension_feedforward: 1024
+    num_encoder_layers: 6
+    dimension_feedforward: 4096
     layer_norm_eps: 1e-5
 
 dataloader:
     dataset: "./raw/image_dataset.zip"
-    batch_size: 64
+    batch_size: 32
     split_size: 0.30
     
 trainer:
     model: None
-    epochs: 100
+    epochs: 200
     lr: 2e-4
-    weight_decay: 2e-2
-    beta1: 0.5
+    weight_decay: 5e-4
+    beta1: 0.9
     beta2: 0.999
     momentum: 0.95
     lr_scheduler: False
@@ -48,9 +48,9 @@ trainer:
     SGD: False
     mlflow: False
     verbose: False
-    device: "cuda"
+    device: "mps"
 
 tester:
     model: "best"
-    device: "cuda"
+    device: "mps"
     plot_images: True

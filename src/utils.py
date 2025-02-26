@@ -132,7 +132,9 @@ def plot_images(
     processed_path = config_files()["artifacts"]["processed_data_path"]
     train_images_path = config_files()["artifacts"]["train_images"]
     valid_images_path = config_files()["artifacts"]["test_image"]
-    saved_images_path = train_images_path if dataloader == "train" else valid_images_path
+    saved_images_path = (
+        train_images_path if dataloader == "train" else valid_images_path
+    )
     try:
         train_dataloader = load_file(
             filename=os.path.join(processed_path, "train_dataloader.pkl")
@@ -182,6 +184,7 @@ def plot_images(
 
         plt.tight_layout()
         plt.savefig(os.path.join(saved_images_path, "image{}.png".format(epoch)))
+        plt.close()
 
     except Exception as e:
         print(f"Error in display_images: {e}")

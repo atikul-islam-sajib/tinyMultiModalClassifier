@@ -29,22 +29,33 @@ dataloader:
     batch_size: 4
     split_size: 0.25
 
+dataloader:
+    dataset: "./raw/image_dataset.zip"
+    batch_size: 32
+    split_size: 0.30
+    
 trainer:
-  model: None
-  epochs: 100
-  lr: 1e-4
-  weight_decay: 1e-2
-  beta1: 0.5
-  beta2: 0.999
-  momentum: 0.95
-  lr_scheduler: False
-  step_size: 20
-  gamma: 0.1
-  l1_regularization: False
-  l2_regularization: False
-  l1_lambda: 0.0
-  l2_lambda: 0.0
-  optimizer: "adam" 
-  mlflow: False
-  verbose: False
-  device: "cuda"
+    model: None
+    epochs: 20
+    lr: 2e-4
+    weight_decay: 5e-4
+    beta1: 0.9
+    beta2: 0.999
+    momentum: 0.95
+    lr_scheduler: False
+    step_size: 20
+    gamma: 0.1
+    l1_regularization: False
+    l2_regularization: False
+    l1_lambda: 0.0
+    l2_lambda: 0.0
+    adam: True
+    SGD: False
+    mlflow: False
+    verbose: False
+    device: "mps"
+
+tester:
+    model: "best"
+    device: "mps"
+    plot_images: True
