@@ -4,6 +4,7 @@ import sys
 import yaml
 import math
 import nltk
+import json
 import torch
 import joblib
 import warnings
@@ -26,6 +27,14 @@ stop_words = set(stopwords.words("english"))
 def config_files():
     with open("./config.yml", "r") as config_file:
         return yaml.safe_load(config_file)
+
+
+def dump_json(**kwargs):
+    with open("./artifacts/metrics/metrics.json", mode="w") as json_file:
+        if isinstance(kwargs, dict):
+            json.dump(kwargs, json_file, indent=4)
+        else:
+            print("Error: 'kwargs' must be a dictionary".capitalize())
 
 
 def dump_file(value: None, filename: None):
@@ -114,23 +123,34 @@ def create_sequences(instance, vocabulary: int = 4096, sequence_length: int = 19
 
 
 def plot_images(
-    predicted: bool = False, device: str = "cuda", model=None, epoch: int = 1
+    predicted: bool = False,
+    device: str = "cuda",
+    model=None,
+    epoch: int = 1,
+    dataloader: str = "train",
 ):
     processed_path = config_files()["artifacts"]["processed_data_path"]
     train_images_path = config_files()["artifacts"]["train_images"]
+    valid_images_path = config_files()["artifacts"]["test_image"]
+    saved_images_path = train_images_path if dataloader == "train" else valid_images_path
     try:
         train_dataloader = load_file(
             filename=os.path.join(processed_path, "train_dataloader.pkl")
         )
+        valid_dataloader = load_file(
+            filename=os.path.join(processed_path, "test_dataloader.pkl")
+        )
         vocabularies = pd.read_csv(os.path.join(processed_path, "vocabulary.csv"))
         vocabularies["index"] = vocabularies["index"].astype(int)
 
-        images, texts, labels = next(iter(train_dataloader))
+        images, texts, labels = next(
+            iter(train_dataloader if dataloader == "train" else valid_dataloader)
+        )
 
         predict = model(image=images.to(device), text=texts.to(device))
         predict = torch.where(predict > 0.5, 1, 0)
         predict = predict.detach().cpu().numpy()
-        
+
         max_imgs = 4
 
         num_images = images[:max_imgs].size(0)
@@ -161,7 +181,7 @@ def plot_images(
             ax.axis("off")
 
         plt.tight_layout()
-        plt.savefig(os.path.join(train_images_path, "image{}.png".format(epoch)))
+        plt.savefig(os.path.join(saved_images_path, "image{}.png".format(epoch)))
 
     except Exception as e:
         print(f"Error in display_images: {e}")

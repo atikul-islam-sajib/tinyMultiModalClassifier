@@ -49,3 +49,7 @@ trainer:
     mlflow: False
     verbose: False
     device: "cuda"
+
+tester:
+    model: "best"
+    device: "cuda"
