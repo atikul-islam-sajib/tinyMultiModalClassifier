@@ -286,17 +286,25 @@ class Trainer:
                     valid_accuracy=valid_accuracy,
                     kwargs={"epochs": epoch + 1},
                 )
+
+                train_loss_mean = np.mean(train_loss)
+                valid_loss_mean = np.mean(valid_loss)
+                train_acc_mean = np.mean(train_accuracy)
+                valid_acc_mean = np.mean(valid_accuracy)
+
+                self.saved_checkpoints(train_loss=train_loss_mean, epoch=epoch + 1)
+
+                self.model_history["train_loss"].append(train_loss_mean)
+                self.model_history["train_accuracy"].append(train_acc_mean)
+                self.model_history["test_loss"].append(valid_loss_mean)
+                self.model_history["test_accuracy"].append(valid_acc_mean)
+
             except KeyError as e:
-                print(f"[Error] Missing key in kwargs: {e}")
+                print(f"[Error] Missing key in function arguments: {e}")
             except TypeError as e:
-                print(f"[Error] Type mismatch in display_progress arguments: {e}")
+                print(f"[Error] Type mismatch in function arguments: {e}")
             except ValueError as e:
                 print(f"[Error] Invalid value encountered: {e}")
-            except Exception as e:
-                print(f"[Unexpected Error] {e}")
-
-            try:
-                self.saved_checkpoints(train_loss=np.mean(train_loss), epoch=epoch + 1)
             except FileNotFoundError:
                 print(
                     "Error: Checkpoint directory not found. Ensure the save path exists."
@@ -305,15 +313,8 @@ class Trainer:
                 print(
                     "Error: Permission denied. Cannot write to the checkpoint directory."
                 )
-            except TypeError as e:
-                print(f"Type Error in saved_checkpoints: {e}")
             except Exception as e:
-                print(f"Unexpected Error in saving checkpoint: {e}")
-
-            self.model_history["train_loss"].append(np.mean(train_loss))
-            self.model_history["train_accuracy"].append(np.mean(train_accuracy))
-            self.model_history["test_loss"].append(np.mean(valid_loss))
-            self.model_history["test_accuracy"].append(np.mean(valid_accuracy))
+                print(f"[Unexpected Error] {e}")
 
         dump_file(
             value=self.model_history,
