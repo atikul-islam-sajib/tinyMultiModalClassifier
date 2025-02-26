@@ -8,12 +8,13 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import accuracy_score
 from torch.optim.lr_scheduler import StepLR
+import matplotlib.pyplot as plt
 
 sys.path.append("./src/")
 
 try:
     from helper import helper
-    from utils import config_files, device_init
+    from utils import config_files, device_init, dump_file, load_file
     from loss_functon import LossFunction
     from multi_modal_clf import MultiModalClassifier
 except ImportError as e:
@@ -149,6 +150,14 @@ class Trainer:
 
         self.train_models = config_files()["artifacts"]["train_models"]
         self.best_model = config_files()["artifacts"]["best_model"]
+        self.metrics_path = config_files()["artifacts"]["metrics"]
+
+        self.model_history = {
+            "train_loss": [],
+            "test_loss": [],
+            "train_accuracy": [],
+            "test_accuracy": [],
+        }
 
         self.loss = float("inf")
 
@@ -289,13 +298,56 @@ class Trainer:
             try:
                 self.saved_checkpoints(train_loss=np.mean(train_loss), epoch=epoch + 1)
             except FileNotFoundError:
-                print("Error: Checkpoint directory not found. Ensure the save path exists.")
+                print(
+                    "Error: Checkpoint directory not found. Ensure the save path exists."
+                )
             except PermissionError:
-                print("Error: Permission denied. Cannot write to the checkpoint directory.")
+                print(
+                    "Error: Permission denied. Cannot write to the checkpoint directory."
+                )
             except TypeError as e:
                 print(f"Type Error in saved_checkpoints: {e}")
             except Exception as e:
                 print(f"Unexpected Error in saving checkpoint: {e}")
+
+            self.model_history["train_loss"].append(np.mean(train_loss))
+            self.model_history["train_accuracy"].append(np.mean(train_accuracy))
+            self.model_history["test_loss"].append(np.mean(valid_loss))
+            self.model_history["test_accuracy"].append(np.mean(valid_accuracy))
+
+        dump_file(
+            value=self.model_history,
+            filename=os.path.join(self.metrics_path, "history.pkl"),
+        )
+
+    @staticmethod
+    def display_history():
+        metrics_path = config_files()["artifacts"]["metrics"]
+        history = load_file(filename=os.path.join(metrics_path, "history.pkl"))
+        if history is not None:
+            _, axes = plt.subplots(2, 2, figsize=(10, 10), sharex=True)
+
+            axes[0, 0].plot(history["train_loss"], label="Train Loss")
+            axes[0, 0].plot(history["test_loss"], label="Test Loss")
+            axes[0, 0].set_title("Loss")
+            axes[0, 0].set_xlabel("Epochs")
+            axes[0, 0].legend()
+
+            axes[0, 1].plot(history["train_accuracy"], label="Train Accuracy")
+            axes[0, 1].plot(history["test_accuracy"], label="Test Accuracy")
+            axes[0, 1].set_title("Accuracy")
+            axes[0, 1].set_xlabel("Epochs")
+            axes[0, 1].legend()
+
+            axes[1, 0].axis("off")
+            axes[1, 1].axis("off")
+
+            plt.tight_layout()
+            plt.savefig(os.path.join(metrics_path, "history.png"))
+            plt.show()
+            print("History saved as 'history.png' in the metrics folder".capitalize())
+        else:
+            print("No history found".capitalize())
 
 
 if __name__ == "__main__":
@@ -393,3 +445,4 @@ if __name__ == "__main__":
     )
 
     trainer.train()
+    Trainer.display_history()
