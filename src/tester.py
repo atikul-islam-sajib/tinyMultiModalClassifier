@@ -5,7 +5,6 @@ import warnings
 import argparse
 import numpy as np
 import torch.nn as nn
-import json
 import matplotlib.pyplot as plt
 from sklearn.metrics import (
     accuracy_score,
@@ -23,9 +22,12 @@ from utils import config_files, load_file, device_init, plot_images, dump_json
 
 
 class Tester:
-    def __init__(self, model: str = "best", device: str = "cuda"):
+    def __init__(
+        self, model: str = "best", device: str = "cuda", plot_images: bool = False
+    ):
         self.model = model
         self.device = device
+        self.plot_images = plot_images
 
         self.accuracy = []
         self.precision = []
@@ -78,7 +80,9 @@ class Tester:
                 except FileNotFoundError:
                     raise FileNotFoundError(f"Model file not found: {best_model_path}")
                 except KeyError:
-                    raise KeyError("The model checkpoint does not contain expected keys.")
+                    raise KeyError(
+                        "The model checkpoint does not contain expected keys."
+                    )
                 except Exception as e:
                     raise RuntimeError(f"Error loading model: {e}")
 
@@ -117,7 +121,9 @@ class Tester:
                     labels = labels.detach().cpu().numpy()
 
                     self.accuracy.append(accuracy_score(predicted, labels))
-                    self.precision.append(precision_score(predicted, labels, zero_division=0))
+                    self.precision.append(
+                        precision_score(predicted, labels, zero_division=0)
+                    )
                     self.recall.append(recall_score(predicted, labels, zero_division=0))
                     self.f1_score.append(f1_score(predicted, labels, zero_division=0))
 
@@ -126,18 +132,22 @@ class Tester:
 
                 except Exception as e:
                     print(f"[WARNING] Skipping batch {index} due to error: {e}")
-                    continue 
+                    continue
 
             if display_image:
                 try:
                     plot_images(
-                        predicted=True, device=self.device, model=self.classifier, epoch=1, dataloader="valid"
+                        predicted=True,
+                        device=self.device,
+                        model=self.classifier,
+                        epoch=1,
+                        dataloader="valid",
                     )
                 except Exception as e:
                     print(f"[WARNING] Failed to display images: {e}")
 
             try:
-                os.makedirs("./artifacts/metrics", exist_ok=True) 
+                os.makedirs("./artifacts/metrics", exist_ok=True)
                 dump_json(
                     accuracy=np.mean(self.accuracy),
                     precision=np.mean(self.precision),
@@ -166,9 +176,33 @@ class Tester:
 
 
 if __name__ == "__main__":
+    model = config_files()["tester"]["model"]
+    device = config_files()["tester"]["device"]
+    plot_images = config_files()["tester"]["plot_images"]
+    parser = argparse.ArgumentParser(description="Test MultiModalClassifier".title())
+    parser.add_argument(
+        "--model",
+        type=str,
+        default=model,
+        help="Choose model to evaluate (best or path)",
+    )
+    parser.add_argument(
+        "--device", type=str, default=device, help="Choose device to use (cuda or cpu)"
+    )
+    parser.add_argument(
+        "--plot_images", type=bool, default=False, help="Display predicted images"
+    )
+    args = parser.parse_args()
     try:
-        tester = Tester()
+        tester = Tester(
+            model=args.model, device=args.device, plot_images=args.plot_images
+        )
         tester.model_eval(display_image=True)
     except Exception as e:
         print(f"[FATAL] Tester encountered a critical error: {e}")
         sys.exit(1)
+    else:
+        print("[INFO] MultiModalClassifier evaluation completed successfully. "
+            "All files related to the test are stored in the metrics folder.")
+
+    

@@ -53,3 +53,4 @@ trainer:
 tester:
     model: "best"
     device: "cuda"
+    plot_images: True
