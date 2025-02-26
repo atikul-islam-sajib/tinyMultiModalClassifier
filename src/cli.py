@@ -216,6 +216,9 @@ def cli():
 
         trainer.train()
         Trainer.display_history()
+
+    elif args.test:
+        pass
         
         
 
